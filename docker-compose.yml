@@ -1,0 +1,18 @@
+services:
+  wallet-db:
+    image: postgres:17.5-alpine
+    container_name: wallet-db
+    restart: always
+    environment:
+      POSTGRES_DB: db_wallet_app
+      POSTGRES_USER: db_wallet_app
+      POSTGRES_PASSWORD: db_wallet_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/:/docker-entrypoint-initdb.d/:ro
+
+volumes:
+  pg_data:
+    driver: local
