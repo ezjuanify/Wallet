@@ -50,3 +50,37 @@ func (s *Store) InsertTransaction(ctx context.Context, txn model.Transaction) er
 	)
 	return err
 }
+
+func (s *Store) UpsertWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+	query := `
+		INSERT INTO wallets (username, balance, last_deposit_amount, last_deposit_updated)
+		VALUES ($1, $2, $3, now())
+		ON CONFLICT (username)
+		DO UPDATE SET 
+			balance = wallets.balance + EXCLUDED.balance,
+			last_deposit_amount = EXCLUDED.last_deposit_amount,
+			last_deposit_updated = now()
+		RETURNING username, balance, last_deposit_amount, last_deposit_updated, last_withdraw_amount, last_withdraw_updated;
+	`
+
+	wallet := &model.Wallet{}
+
+	err := s.DB.QueryRowContext(
+		ctx,
+		query,
+		username,
+		amount,
+		amount,
+	).Scan(
+		&wallet.Username,
+		&wallet.Balance,
+		&wallet.LastDepositAmount,
+		&wallet.LastDepositUpdated,
+		&wallet.LastWithdrawAmount,
+		&wallet.LastWithdrawUpdated,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return wallet, nil
+}

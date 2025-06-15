@@ -23,11 +23,13 @@ func main() {
 		log.Fatalf("Failed to initialize DB Store: %v", err)
 	}
 
-	service.NewTransactionService(store)
+	ws := service.NewWalletService(store)
+	ts := service.NewTransactionService(store)
+	wh := handler.NewWalletHandler(ws, ts)
 
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("/health", handler.HealthHandler)
+	mux.HandleFunc("/deposit", wh.DepositResponse)
 
 	serve := &http.Server{
 		Addr:    ":8080",
