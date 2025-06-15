@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS wallets (
 
 CREATE TABLE IF NOT EXISTS transactions (
     id           SERIAL  PRIMARY KEY,
-    username     TEXT    UNIQUE        NOT NULL,
+    username     TEXT                  NOT NULL,
     type         TEXT                  NOT NULL CHECK (type IN ('deposit', 'withdraw', 'transfer_in', 'transfer_out')),
     amount       BIGINT                NOT NULL CHECK (amount > 0),
     counterparty TEXT,
