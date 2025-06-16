@@ -3,16 +3,19 @@ package service
 import (
 	"context"
 
-	"github.com/ezjuanify/wallet/internal/db"
 	"github.com/ezjuanify/wallet/internal/model"
 	"github.com/ezjuanify/wallet/internal/validation"
 )
 
-type WalletService struct {
-	store *db.Store
+type WalletStore interface {
+	UpsertWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error)
 }
 
-func NewWalletService(store *db.Store) *WalletService {
+type WalletService struct {
+	store WalletStore
+}
+
+func NewWalletService(store WalletStore) *WalletService {
 	return &WalletService{store: store}
 }
 
