@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+func PtrInt64(v int64) *int64 { return &v }
+
 func GenerateTransactionHash(txUser string, txType string, txAmount int64, txCounterparty *string, timestamp string) string {
 	var counterparty string
 	if txCounterparty != nil {
