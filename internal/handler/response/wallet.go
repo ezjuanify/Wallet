@@ -2,8 +2,9 @@ package response
 
 import "github.com/ezjuanify/wallet/internal/model"
 
-type DepositResponse struct {
+type TransactionResponse struct {
 	Status          int64                 `json:"status"`
 	TransactionType model.TransactionType `json:"action"`
 	Wallet          model.Wallet          `json:"wallet"`
+	Counterparty    *string               `json:"counterpary,omitempty"`
 }

@@ -35,7 +35,7 @@ func NewStore(pgconfig *PGConfig) (*Store, error) {
 func (s *Store) InsertTransaction(ctx context.Context, txn model.Transaction) error {
 	query := `
 		INSERT INTO transactions (username, type, amount, counterparty, timestamp, hash) 
-		VALUES ($1, $2, $3, $4, $5, $6)
+		VALUES ($1, $2, $3, $4, $5, $6);
 	`
 
 	_, err := s.DB.ExecContext(
@@ -51,6 +51,33 @@ func (s *Store) InsertTransaction(ctx context.Context, txn model.Transaction) er
 	return err
 }
 
+func (s *Store) FetchWallet(ctx context.Context, username string) (*model.Wallet, error) {
+	query := `
+		SELECT username, balance, last_deposit_amount, last_deposit_updated, last_withdraw_amount, last_withdraw_updated
+		FROM wallets
+		WHERE username = $1;
+	`
+
+	row := s.DB.QueryRowContext(ctx, query, username)
+
+	var wallet model.Wallet
+	err := row.Scan(
+		&wallet.Username,
+		&wallet.Balance,
+		&wallet.LastDepositAmount,
+		&wallet.LastDepositUpdated,
+		&wallet.LastWithdrawAmount,
+		&wallet.LastWithdrawUpdated,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &wallet, nil
+}
+
 func (s *Store) UpsertWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
 	query := `
 		INSERT INTO wallets (username, balance, last_deposit_amount, last_deposit_updated)
@@ -63,8 +90,7 @@ func (s *Store) UpsertWallet(ctx context.Context, username string, amount int64)
 		RETURNING username, balance, last_deposit_amount, last_deposit_updated, last_withdraw_amount, last_withdraw_updated;
 	`
 
-	wallet := &model.Wallet{}
-
+	var wallet model.Wallet
 	err := s.DB.QueryRowContext(
 		ctx,
 		query,
@@ -82,5 +108,5 @@ func (s *Store) UpsertWallet(ctx context.Context, username string, amount int64)
 	if err != nil {
 		return nil, err
 	}
-	return wallet, nil
+	return &wallet, nil
 }

@@ -16,6 +16,10 @@ func (m *mockStore) UpsertWallet(ctx context.Context, username string, amount in
 	}, nil
 }
 
+func (m *mockStore) FetchWallet(ctx context.Context, username string) (*model.Wallet, error) {
+	return nil, nil
+}
+
 func TestDoDeposit(t *testing.T) {
 	type testCase struct {
 		name           string

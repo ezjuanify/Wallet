@@ -32,7 +32,7 @@ func (wh *WalletHandler) DepositResponse(w http.ResponseWriter, r *http.Request)
 		fmt.Printf("Error logging transaction: %v\n", err)
 	}
 
-	resp := response.DepositResponse{
+	resp := response.TransactionResponse{
 		Status:          http.StatusOK,
 		TransactionType: model.TypeDeposit,
 		Wallet:          *wallet,

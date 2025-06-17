@@ -9,6 +9,7 @@ import (
 
 type WalletStore interface {
 	UpsertWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error)
+	FetchWallet(ctx context.Context, username string) (*model.Wallet, error)
 }
 
 type WalletService struct {
@@ -29,9 +30,19 @@ func (ws *WalletService) DoDeposit(ctx context.Context, username string, amount 
 		return nil, err
 	}
 
-	wallet, err := ws.store.UpsertWallet(ctx, username, amount)
+	currentWallet, err := ws.store.FetchWallet(ctx, username)
 	if err != nil {
 		return nil, err
 	}
-	return wallet, nil
+	if currentWallet != nil {
+		if err := validation.ValidateAmount(currentWallet.Balance + amount); err != nil {
+			return nil, err
+		}
+	}
+
+	updatedWallet, err := ws.store.UpsertWallet(ctx, username, amount)
+	if err != nil {
+		return nil, err
+	}
+	return updatedWallet, nil
 }

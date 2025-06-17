@@ -9,6 +9,10 @@ import (
 	"github.com/ezjuanify/wallet/internal/service"
 )
 
+const (
+	WALLET_PORT = ":8080"
+)
+
 func main() {
 	pgconfig := &db.PGConfig{
 		Host: "localhost",
@@ -32,12 +36,12 @@ func main() {
 	mux.HandleFunc("/deposit", wh.DepositResponse)
 
 	serve := &http.Server{
-		Addr:    ":8080",
+		Addr:    WALLET_PORT,
 		Handler: mux,
 	}
 
-	log.Println("Server starting on :8080")
+	log.Printf("Wallet API starting on %s\n", WALLET_PORT)
 	if err := serve.ListenAndServe(); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+		log.Fatalf("Failed to start Wallet API: %v", err)
 	}
 }

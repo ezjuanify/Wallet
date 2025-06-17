@@ -7,6 +7,7 @@ import (
 	"github.com/ezjuanify/wallet/internal/db"
 	"github.com/ezjuanify/wallet/internal/model"
 	"github.com/ezjuanify/wallet/internal/utils"
+	"github.com/ezjuanify/wallet/internal/validation"
 )
 
 type TransactionService struct {
@@ -18,6 +19,11 @@ func NewTransactionService(store *db.Store) *TransactionService {
 }
 
 func (ts *TransactionService) LogTransaction(ctx context.Context, txUser string, txType model.TransactionType, txAmount int64, txCounterparty *string) error {
+	txUser, err := validation.SanitizeAndValidateUsername(txUser)
+	if err != nil {
+		return err
+	}
+
 	timestamp := time.Now().UTC()
 	hash := utils.GenerateTransactionHash(txUser, string(txType), txAmount, txCounterparty, timestamp.Format(time.RFC3339))
 
@@ -29,6 +35,6 @@ func (ts *TransactionService) LogTransaction(ctx context.Context, txUser string,
 		Timestamp:    timestamp,
 		Hash:         hash,
 	}
-	err := ts.store.InsertTransaction(ctx, txn)
+	err = ts.store.InsertTransaction(ctx, txn)
 	return err
 }
