@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS wallets (
     last_withdraw_amount  BIGINT,
     last_withdraw_updated TIMESTAMP
 );
-ALTER TABLE wallets ADD CONSTRAINT chk_wallet_balance CHECK (balance <= 999999);
+ALTER TABLE wallets ADD CONSTRAINT chk_wallet_balance CHECK (balance >= 0 AND balance <= 999999);
 
 CREATE TABLE IF NOT EXISTS transactions (
     id           SERIAL  PRIMARY KEY,

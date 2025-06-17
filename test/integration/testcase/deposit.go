@@ -1,6 +1,7 @@
 package testcase
 
 import (
+	"github.com/ezjuanify/wallet/internal/handler/request"
 	"github.com/ezjuanify/wallet/internal/model"
 )
 
@@ -17,7 +18,7 @@ func AddDepositTestCase() []TestCase {
 				LastWithdrawAmount:  nil,
 				LastWithdrawUpdated: nil,
 			},
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   1000,
 			},
@@ -28,7 +29,7 @@ func AddDepositTestCase() []TestCase {
 			Name:          "Integration Test: Successful Deposit - Normal",
 			TxnType:       model.TransactionType(model.TypeDeposit),
 			InitialWallet: nil,
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   500,
 			},
@@ -42,7 +43,7 @@ func AddDepositTestCase() []TestCase {
 				Username: "JUAN",
 				Balance:  100,
 			},
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   900,
 			},
@@ -60,7 +61,7 @@ func AddDepositTestCase() []TestCase {
 				LastWithdrawAmount:  nil,
 				LastWithdrawUpdated: nil,
 			},
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   500,
 			},
@@ -71,7 +72,7 @@ func AddDepositTestCase() []TestCase {
 			Name:          "Integration Test: Successful Deposit - Alphanumeric and underscore username",
 			TxnType:       model.TransactionType(model.TypeDeposit),
 			InitialWallet: nil,
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "j_uan_123",
 				Amount:   5000,
 			},
@@ -85,7 +86,7 @@ func AddDepositTestCase() []TestCase {
 				Username: "JUAN",
 				Balance:  888888,
 			},
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   111111,
 			},
@@ -96,12 +97,23 @@ func AddDepositTestCase() []TestCase {
 			Name:          "Integration Test: Successful Deposit - Max allowed amount",
 			TxnType:       model.TransactionType(model.TypeDeposit),
 			InitialWallet: nil,
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   999999,
 			},
 			ExpectedWallet: &model.Wallet{},
 			ExpectErr:      false,
+		},
+		{
+			Name:          "Integration Test: Successful Deposit - Zero amount",
+			TxnType:       model.TransactionType(model.TypeDeposit),
+			InitialWallet: nil,
+			Payload: &request.RequestPayload{
+				Username: "j_123",
+				Amount:   0,
+			},
+			ExpectedWallet: &model.Wallet{},
+			ExpectErr:      true,
 		},
 		{
 			Name:    "Integration Test: Fail Deposit - Negative amount payload",
@@ -114,7 +126,7 @@ func AddDepositTestCase() []TestCase {
 				LastWithdrawAmount:  nil,
 				LastWithdrawUpdated: nil,
 			},
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   -1000,
 			},
@@ -125,7 +137,7 @@ func AddDepositTestCase() []TestCase {
 			Name:          "Integration Test: Fail Deposit - Invalid character username",
 			TxnType:       model.TransactionType(model.TypeDeposit),
 			InitialWallet: nil,
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "j@uan",
 				Amount:   500,
 			},
@@ -136,7 +148,7 @@ func AddDepositTestCase() []TestCase {
 			Name:          "Integration Test: Fail Deposit - Over limit amount",
 			TxnType:       model.TransactionType(model.TypeDeposit),
 			InitialWallet: nil,
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "j_123",
 				Amount:   1000000,
 			},
@@ -150,20 +162,9 @@ func AddDepositTestCase() []TestCase {
 				Username: "JUAN",
 				Balance:  900000,
 			},
-			Payload: &RequestPayload{
+			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   100000,
-			},
-			ExpectedWallet: &model.Wallet{},
-			ExpectErr:      true,
-		},
-		{
-			Name:          "Integration Test: Fail Deposit - Zero amount",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
-			Payload: &RequestPayload{
-				Username: "j_123",
-				Amount:   0,
 			},
 			ExpectedWallet: &model.Wallet{},
 			ExpectErr:      true,
