@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ezjuanify/wallet/internal/handler/request"
 	"github.com/ezjuanify/wallet/internal/handler/response"
 	"github.com/ezjuanify/wallet/internal/model"
 	"github.com/ezjuanify/wallet/internal/utils"
-	"github.com/ezjuanify/wallet/test/integration/testcase"
 )
 
 func waitForHTTPServerReady(maxRetries int, interval time.Duration, host string, port string) error {
@@ -28,7 +28,7 @@ func waitForHTTPServerReady(maxRetries int, interval time.Duration, host string,
 	return fmt.Errorf("HTTP server not ready after %d attempts", maxRetries)
 }
 
-func DoTestRequest(txnType model.TransactionType, payload *testcase.RequestPayload, host string, port string) (*http.Response, error) {
+func DoTestRequest(txnType model.TransactionType, payload *request.RequestPayload, host string, port string) (*http.Response, error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal JSON: %s", err)
@@ -71,7 +71,7 @@ func DoTestRespFormatValidation(resp *http.Response) (*model.Wallet, error) {
 	return &result.Wallet, nil
 }
 
-func DoTestSetExpectedWallet(test_name string, txnType model.TransactionType, expectedWallet *model.Wallet, initialWallet *model.Wallet, payload *testcase.RequestPayload) error {
+func DoTestSetExpectedWallet(test_name string, txnType model.TransactionType, expectedWallet *model.Wallet, initialWallet *model.Wallet, payload *request.RequestPayload) error {
 	if initialWallet != nil {
 		*expectedWallet = *initialWallet
 	} else {
@@ -130,7 +130,7 @@ func DoTestWalletValidation(test_name string, txnType model.TransactionType, exp
 	return nil
 }
 
-func DoTestTransactionValidation(test_name string, txnType model.TransactionType, payload *testcase.RequestPayload, expectedWallet *model.Wallet, transaction *model.Transaction) error {
+func DoTestTransactionValidation(test_name string, txnType model.TransactionType, payload *request.RequestPayload, expectedWallet *model.Wallet, transaction *model.Transaction) error {
 	if expectedWallet == nil {
 		return fmt.Errorf("%s: wallet is nil", test_name)
 	}
@@ -165,6 +165,10 @@ func DoTestTransactionValidation(test_name string, txnType model.TransactionType
 
 	if payload.Amount != transaction.Amount {
 		return fmt.Errorf("%s: Amount - expected %d but got %d", test_name, payload.Amount, transaction.Amount)
+	}
+
+	if payloadHash := utils.GenerateTransactionHash(strings.ToUpper(payload.Username), string(txnType), payload.Amount, nil, transaction.Timestamp.UTC().Format(time.RFC3339)); payloadHash != transaction.Hash {
+		return fmt.Errorf("%s: Calculated payload hash %s does not match %s", test_name, payloadHash[:10], transaction.Hash[:10])
 	}
 	return nil
 }

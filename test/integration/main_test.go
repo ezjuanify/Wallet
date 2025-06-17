@@ -9,6 +9,7 @@ import (
 
 	"github.com/ezjuanify/wallet/internal/db"
 	"github.com/ezjuanify/wallet/internal/handler"
+	"github.com/ezjuanify/wallet/internal/logger"
 	"github.com/ezjuanify/wallet/internal/service"
 )
 
@@ -22,6 +23,9 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	logger.InitLogger()
+	defer logger.Sync()
+
 	startTestDB()
 
 	pgconfig := &db.PGConfig{
@@ -44,7 +48,7 @@ func TestMain(m *testing.M) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", handler.HealthHandler)
-	mux.HandleFunc("/deposit", wh.DepositResponse)
+	mux.HandleFunc("/deposit", wh.DepositHandler)
 
 	go func() {
 		log.Printf("Integration server starting on :%s\n", TEST_WALLET_PORT)

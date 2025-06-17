@@ -12,7 +12,24 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./db/:/docker-entrypoint-initdb.d/:ro
-
+  wallet-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wallet-app
+    environment:
+      APP_PORT: 8080
+      PG_HOST: wallet-db
+      PG_PORT: 5432
+      PG_DB: db_wallet_app
+      PG_USER: db_wallet_app
+      PG_PASS: db_wallet_app
+      PG_SSL: disable
+    ports:
+      - "8080:8080"
+    depends_on:
+      - wallet-db
+      
 volumes:
   pg_data:
     driver: local

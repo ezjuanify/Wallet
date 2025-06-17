@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/ezjuanify/wallet/internal/logger"
 	"github.com/ezjuanify/wallet/internal/model"
 )
 
@@ -20,7 +21,17 @@ func (m *mockStore) FetchWallet(ctx context.Context, username string) (*model.Wa
 	return nil, nil
 }
 
+func (m *mockStore) WithdrawWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+	return &model.Wallet{
+		Username: username,
+		Balance:  amount,
+	}, nil
+}
+
 func TestDoDeposit(t *testing.T) {
+	logger.InitLogger()
+	defer logger.Sync()
+
 	type testCase struct {
 		name           string
 		username       string

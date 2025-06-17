@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (h *WalletHandler) DepositHandler(w http.ResponseWriter, r *http.Request) {
+func (h *WalletHandler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	payload, err := utils.DecodeRequest(r)
@@ -20,29 +20,29 @@ func (h *WalletHandler) DepositHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
 		return
 	}
-	logger.Debug("Decoded deposit payload", zap.Any("payload", payload))
+	logger.Debug("Decoded withdraw payload", zap.Any("payload", payload))
 
-	wallet, err := h.walletService.DoDeposit(ctx, payload.Username, payload.Amount)
+	wallet, err := h.walletService.DoWithdraw(ctx, payload.Username, payload.Amount)
 	if err != nil {
-		logger.Error("Wallet deposit failed", zap.String("error", err.Error()), zap.String("user", payload.Username))
-		http.Error(w, fmt.Sprintf("Deposit Error: %v", err), http.StatusInternalServerError)
+		logger.Error("Wallet withdraw failed", zap.String("error", err.Error()), zap.String("user", payload.Username))
+		http.Error(w, fmt.Sprintf("Withdraw Error: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	if err := h.transactionService.LogTransaction(ctx, payload.Username, model.TypeDeposit, payload.Amount, nil); err != nil {
+	if err := h.transactionService.LogTransaction(ctx, payload.Username, model.TypeWithdraw, payload.Amount, nil); err != nil {
 		logger.Warn("Failed to log transaction", zap.String("error", err.Error()))
 	}
 
 	resp := &response.TransactionResponse{
 		Status:          http.StatusOK,
-		TransactionType: model.TypeDeposit,
+		TransactionType: model.TypeWithdraw,
 		Wallet:          *wallet,
 	}
-	logger.Debug("Sending deposit response", zap.Any("response", resp))
+	logger.Debug("Sending withdraw response", zap.Any("response", resp))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		logger.Error("Failed to encode deposit response", zap.String("error", err.Error()))
+		logger.Error("Failed to encode withdraw response", zap.String("error", err.Error()))
 	}
 }
