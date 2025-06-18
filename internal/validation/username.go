@@ -20,7 +20,12 @@ func SanitizeAndValidateUsername(raw string) (string, error) {
 		return "", fmt.Errorf("username cannot be empty")
 	}
 
-	username := strings.ToUpper(raw)
+	username := strings.TrimSpace(raw)
+	if username == "" {
+		return "", fmt.Errorf("username cannot be only spaces")
+	}
+
+	username = strings.ToUpper(username)
 	if err := validateUsername(username); err != nil {
 		return "", err
 	}

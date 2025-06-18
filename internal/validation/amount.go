@@ -1,6 +1,8 @@
 package validation
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	UPPER_LIMIT = 999999

@@ -39,9 +39,10 @@ func main() {
 	}
 	logger.Info("Successfully connected to DB", dbFields...)
 
-	ws := service.NewWalletService(store)
+	ds := service.NewDepositService(store)
+	ws := service.NewWithdrawService(store)
 	ts := service.NewTransactionService(store)
-	wh := handler.NewWalletHandler(ws, ts)
+	wh := handler.NewWalletHandler(ds, ws, ts)
 	logger.Info("All services initialized")
 
 	ap := service.NewAppServer()

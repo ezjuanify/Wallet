@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ezjuanify/wallet/internal/handler/request"
-	"github.com/ezjuanify/wallet/internal/handler/response"
 	"github.com/ezjuanify/wallet/internal/model"
+	"github.com/ezjuanify/wallet/internal/model/request"
+	"github.com/ezjuanify/wallet/internal/model/response"
 	"github.com/ezjuanify/wallet/internal/utils"
 )
 

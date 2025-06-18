@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ezjuanify/wallet/internal/handler/response"
 	"github.com/ezjuanify/wallet/internal/logger"
 	"github.com/ezjuanify/wallet/internal/model"
+	"github.com/ezjuanify/wallet/internal/model/response"
 	"github.com/ezjuanify/wallet/internal/utils"
 	"go.uber.org/zap"
 )
@@ -22,7 +22,7 @@ func (h *WalletHandler) WithdrawHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	logger.Debug("Decoded withdraw payload", zap.Any("payload", payload))
 
-	wallet, err := h.walletService.DoWithdraw(ctx, payload.Username, payload.Amount)
+	wallet, err := h.WithdrawService.DoWithdraw(ctx, payload.Username, payload.Amount)
 	if err != nil {
 		logger.Error("Wallet withdraw failed", zap.String("error", err.Error()), zap.String("user", payload.Username))
 		http.Error(w, fmt.Sprintf("Withdraw Error: %v", err), http.StatusInternalServerError)

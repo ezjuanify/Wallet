@@ -41,9 +41,10 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Failed to connect to test DB: %v\n", err)
 	}
 
-	ws := service.NewWalletService(store)
+	ds := service.NewDepositService(store)
+	ws := service.NewWithdrawService(store)
 	ts := service.NewTransactionService(store)
-	wh := handler.NewWalletHandler(ws, ts)
+	wh := handler.NewWalletHandler(ds, ws, ts)
 	dbTestHarness = NewDbHarness(store)
 
 	mux := http.NewServeMux()

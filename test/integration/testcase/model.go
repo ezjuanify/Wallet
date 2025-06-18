@@ -1,8 +1,8 @@
 package testcase
 
 import (
-	"github.com/ezjuanify/wallet/internal/handler/request"
 	"github.com/ezjuanify/wallet/internal/model"
+	"github.com/ezjuanify/wallet/internal/model/request"
 )
 
 type TestCase struct {
