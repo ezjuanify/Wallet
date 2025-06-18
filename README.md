@@ -72,6 +72,6 @@ go test -v ./internal/...
 go test -v ./...
 ```
 
-##ss License
+## License
 
 MIT

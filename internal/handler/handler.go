@@ -6,11 +6,20 @@ import (
 )
 
 type WalletHandler struct {
-	walletService      *service.WalletService
+	DepositService     *service.DepositService
+	WithdrawService    *service.WithdrawService
 	transactionService *service.TransactionService
 }
 
-func NewWalletHandler(ws *service.WalletService, ts *service.TransactionService) *WalletHandler {
+func NewWalletHandler(
+	ds *service.DepositService,
+	ws *service.WithdrawService,
+	ts *service.TransactionService,
+) *WalletHandler {
 	logger.Debug("Initializing WalletHandler")
-	return &WalletHandler{walletService: ws, transactionService: ts}
+	return &WalletHandler{
+		DepositService:     ds,
+		WithdrawService:    ws,
+		transactionService: ts,
+	}
 }

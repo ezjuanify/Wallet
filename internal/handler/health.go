@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ezjuanify/wallet/internal/handler/response"
 	"github.com/ezjuanify/wallet/internal/model"
+	"github.com/ezjuanify/wallet/internal/model/response"
 )
 
 func HealthHandler(w http.ResponseWriter, r *http.Request) {

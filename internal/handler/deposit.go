@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ezjuanify/wallet/internal/handler/response"
 	"github.com/ezjuanify/wallet/internal/logger"
 	"github.com/ezjuanify/wallet/internal/model"
+	"github.com/ezjuanify/wallet/internal/model/response"
 	"github.com/ezjuanify/wallet/internal/utils"
 	"go.uber.org/zap"
 )
@@ -22,7 +22,7 @@ func (h *WalletHandler) DepositHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Debug("Decoded deposit payload", zap.Any("payload", payload))
 
-	wallet, err := h.walletService.DoDeposit(ctx, payload.Username, payload.Amount)
+	wallet, err := h.DepositService.DoDeposit(ctx, payload.Username, payload.Amount)
 	if err != nil {
 		logger.Error("Wallet deposit failed", zap.String("error", err.Error()), zap.String("user", payload.Username))
 		http.Error(w, fmt.Sprintf("Deposit Error: %v", err), http.StatusInternalServerError)

@@ -10,8 +10,8 @@ import (
 	"strconv"
 
 	"github.com/ezjuanify/wallet/internal/db"
-	"github.com/ezjuanify/wallet/internal/handler/request"
 	"github.com/ezjuanify/wallet/internal/logger"
+	"github.com/ezjuanify/wallet/internal/model/request"
 	"go.uber.org/zap"
 )
 
