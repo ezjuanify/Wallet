@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/ezjuanify/wallet/internal/logger"
@@ -11,7 +12,7 @@ import (
 )
 
 type WithdrawStore interface {
-	WithdrawWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error)
+	WithdrawWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error)
 	FetchWallet(ctx context.Context, username string) (*model.Wallet, error)
 }
 
@@ -24,7 +25,7 @@ func NewWithdrawService(store WithdrawStore) *WithdrawService {
 	return &WithdrawService{store: store}
 }
 
-func (s *WithdrawService) DoWithdraw(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+func (s *WithdrawService) DoWithdraw(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
 	funcName := "WithdrawService.DoWithdraw"
 	logger.Info(fmt.Sprintf("%s - Params received", funcName), zap.String("username", username), zap.Int64("amount", amount))
 	username, err := validation.SanitizeAndValidateUsername(username)
@@ -45,17 +46,17 @@ func (s *WithdrawService) DoWithdraw(ctx context.Context, username string, amoun
 	if currentWallet == nil {
 		return nil, fmt.Errorf("username %s does not have a wallet", username)
 	}
-	logger.Info(fmt.Sprintf("%s - Validating if amount breaches lower limit", funcName), []zap.Field{
-		zap.Int64("wallet_balance", currentWallet.Balance),
-		zap.Int64("payload_amount", amount),
-		zap.Int64("resulting_balance", currentWallet.Balance-amount),
-	}...)
 	if err := validation.ValidateWalletBalance(currentWallet.Balance - amount); err != nil {
 		logger.Error(fmt.Sprintf("%s - Wallet balance validation failed", funcName), zap.String("error", err.Error()))
 		return nil, fmt.Errorf("insufficient wallet balance - balance: %d - withdraw: %d - overdraft: %d", currentWallet.Balance, amount, currentWallet.Balance-amount)
 	}
+	logger.Info(fmt.Sprintf("%s - Wallet balance validated", funcName), []zap.Field{
+		zap.Int64("wallet_balance", currentWallet.Balance),
+		zap.Int64("payload_amount", amount),
+		zap.Int64("resulting_balance", currentWallet.Balance-amount),
+	}...)
 
-	updatedWallet, err := s.store.WithdrawWallet(ctx, username, amount)
+	updatedWallet, err := s.store.WithdrawWallet(ctx, tx, username, amount)
 	if err != nil {
 		return nil, err
 	}

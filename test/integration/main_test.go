@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 	ds := service.NewDepositService(store)
 	ws := service.NewWithdrawService(store)
 	ts := service.NewTransactionService(store)
-	wh := handler.NewWalletHandler(ds, ws, ts)
+	wh := handler.NewWalletHandler(store, ds, ws, ts)
 	dbTestHarness = NewDbHarness(store)
 
 	mux := http.NewServeMux()

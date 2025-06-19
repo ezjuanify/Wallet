@@ -15,6 +15,28 @@ import (
 func (h *WalletHandler) DepositHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	var err error
+
+	tx, err := h.store.BeginTransaction(ctx)
+	if err != nil {
+		http.Error(w, "Failed to start transaction", http.StatusInternalServerError)
+		return
+	}
+
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+			if err != nil {
+				logger.Error("Failed to commit transaction", zap.String("error", err.Error()))
+			}
+		}
+	}()
+
 	payload, err := utils.DecodeRequest(r)
 	if err != nil {
 		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
@@ -22,14 +44,14 @@ func (h *WalletHandler) DepositHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Debug("Decoded deposit payload", zap.Any("payload", payload))
 
-	wallet, err := h.DepositService.DoDeposit(ctx, payload.Username, payload.Amount)
+	wallet, err := h.depositService.DoDeposit(ctx, tx, payload.Username, payload.Amount)
 	if err != nil {
 		logger.Error("Wallet deposit failed", zap.String("error", err.Error()), zap.String("user", payload.Username))
 		http.Error(w, fmt.Sprintf("Deposit Error: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	if err := h.transactionService.LogTransaction(ctx, payload.Username, model.TypeDeposit, payload.Amount, nil); err != nil {
+	if err = h.transactionService.LogTransaction(ctx, tx, payload.Username, model.TypeDeposit, payload.Amount, nil); err != nil {
 		logger.Warn("Failed to log transaction", zap.String("error", err.Error()))
 	}
 

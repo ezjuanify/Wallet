@@ -19,6 +19,7 @@ type TransactionType string
 const (
 	TypeDeposit     TransactionType = "deposit"
 	TypeWithdraw    TransactionType = "withdraw"
+	TypeTransfer    TransactionType = "transfer"
 	TypeTransferIn  TransactionType = "transfer_in"
 	TypeTransferOut TransactionType = "transfer_out"
 )
