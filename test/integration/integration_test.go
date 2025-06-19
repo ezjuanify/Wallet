@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/ezjuanify/wallet/test/integration/testcase"
@@ -9,7 +8,8 @@ import (
 
 func TestIntegration(t *testing.T) {
 	tests := []testcase.TestCase{}
-	tests = append(tests, testcase.AddDepositTestCase()...)
+	tests = append(tests, testcase.AddDepositTestCases()...)
+	tests = append(tests, testcase.AddWithdrawTestCases()...)
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
@@ -38,7 +38,7 @@ func TestIntegration(t *testing.T) {
 				t.Errorf("%s", err)
 			}
 
-			if err := DoTestSetExpectedWallet("Test Set Expected Wallet", test.TxnType, test.ExpectedWallet, test.InitialWallet, test.Payload); !test.ExpectErr && err != nil {
+			if err := DoTestBuildExpectedWallet("Test Set Expected Wallet", &test); !test.ExpectErr && err != nil {
 				t.Errorf("%s", err)
 			}
 
@@ -46,7 +46,7 @@ func TestIntegration(t *testing.T) {
 				t.Errorf("%s", err)
 			}
 
-			dbWallet, err := dbTestHarness.DoTestFetchWalletFromDB(strings.ToUpper(test.Payload.Username))
+			dbWallet, err := dbTestHarness.DoTestFetchWalletFromDB(test.SanitizedPayloadUsername())
 			if !test.ExpectErr && err != nil {
 				t.Errorf("%s", err)
 			}
@@ -55,12 +55,12 @@ func TestIntegration(t *testing.T) {
 				t.Errorf("%s", err)
 			}
 
-			dbTransaction, err := dbTestHarness.DoTestFetchTransaction(strings.ToUpper(test.Payload.Username))
+			dbTransaction, err := dbTestHarness.DoTestFetchTransaction(test.SanitizedPayloadUsername())
 			if !test.ExpectErr && err != nil {
 				t.Errorf("%s", err)
 			}
 
-			if err := DoTestTransactionValidation("Test DB Source Transaction", test.TxnType, test.Payload, test.ExpectedWallet, dbTransaction); !test.ExpectErr && err != nil {
+			if err := DoTestTransactionValidation("Test DB Source Transaction", test, dbTransaction); !test.ExpectErr && err != nil {
 				t.Errorf("%s", err)
 			}
 		})
