@@ -13,6 +13,7 @@ import (
 	"github.com/ezjuanify/wallet/internal/model/request"
 	"github.com/ezjuanify/wallet/internal/model/response"
 	"github.com/ezjuanify/wallet/internal/utils"
+	"github.com/ezjuanify/wallet/test/integration/testcase"
 )
 
 func waitForHTTPServerReady(maxRetries int, interval time.Duration, host string, port string) error {
@@ -71,21 +72,21 @@ func DoTestRespFormatValidation(resp *http.Response) (*model.Wallet, error) {
 	return &result.Wallet, nil
 }
 
-func DoTestSetExpectedWallet(test_name string, txnType model.TransactionType, expectedWallet *model.Wallet, initialWallet *model.Wallet, payload *request.RequestPayload) error {
-	if initialWallet != nil {
-		*expectedWallet = *initialWallet
+func DoTestBuildExpectedWallet(test_name string, test *testcase.TestCase) error {
+	if test.InitialWallet != nil {
+		*test.ExpectedWallet = *test.InitialWallet
 	} else {
-		expectedWallet.Username = strings.ToUpper(payload.Username)
-		expectedWallet.Balance = 0
+		test.ExpectedWallet.Username = test.SanitizedPayloadUsername()
+		test.ExpectedWallet.Balance = 0
 	}
 
-	switch txnType {
+	switch test.TxnType {
 	case model.TypeDeposit:
-		expectedWallet.Balance += payload.Amount
-		expectedWallet.LastDepositAmount = utils.PtrInt64(payload.Amount)
+		test.ExpectedWallet.Balance += test.Payload.Amount
+		test.ExpectedWallet.LastDepositAmount = utils.PtrInt64(test.Payload.Amount)
 	case model.TypeWithdraw:
-		expectedWallet.Balance -= payload.Amount
-		expectedWallet.LastWithdrawAmount = utils.PtrInt64(payload.Amount)
+		test.ExpectedWallet.Balance -= test.Payload.Amount
+		test.ExpectedWallet.LastWithdrawAmount = utils.PtrInt64(test.Payload.Amount)
 	}
 
 	return nil
@@ -130,44 +131,44 @@ func DoTestWalletValidation(test_name string, txnType model.TransactionType, exp
 	return nil
 }
 
-func DoTestTransactionValidation(test_name string, txnType model.TransactionType, payload *request.RequestPayload, expectedWallet *model.Wallet, transaction *model.Transaction) error {
-	if expectedWallet == nil {
+func DoTestTransactionValidation(test_name string, test testcase.TestCase, transaction *model.Transaction) error {
+	if test.ExpectedWallet == nil {
 		return fmt.Errorf("%s: wallet is nil", test_name)
 	}
 	if transaction == nil {
 		return fmt.Errorf("%s: transaction is nil", test_name)
 	}
 
-	if txnType != model.TransactionType(transaction.Type) {
-		return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, txnType, transaction.Type)
+	if test.TxnType != model.TransactionType(transaction.Type) {
+		return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, test.TxnType, transaction.Type)
 	}
 
-	if expectedWallet.Username != transaction.Username {
-		return fmt.Errorf("%s: Username - expected %s but got %s", test_name, expectedWallet.Username, transaction.Username)
+	if test.ExpectedWallet.Username != transaction.Username {
+		return fmt.Errorf("%s: Username - expected %s but got %s", test_name, test.ExpectedWallet.Username, transaction.Username)
 	}
 
-	switch txnType {
+	switch test.TxnType {
 	case model.TypeDeposit:
-		if expectedWallet.LastDepositAmount == nil {
+		if test.ExpectedWallet.LastDepositAmount == nil {
 			return fmt.Errorf("%s: LastDepositAmount - expected a value but got nil", test_name)
 		}
-		if *expectedWallet.LastDepositAmount != transaction.Amount {
-			return fmt.Errorf("%s: LastDepositAmount - expected %d but got %d", test_name, *expectedWallet.LastDepositAmount, transaction.Amount)
+		if *test.ExpectedWallet.LastDepositAmount != transaction.Amount {
+			return fmt.Errorf("%s: LastDepositAmount - expected %d but got %d", test_name, *test.ExpectedWallet.LastDepositAmount, transaction.Amount)
 		}
 	case model.TypeWithdraw:
-		if expectedWallet.LastWithdrawAmount == nil {
+		if test.ExpectedWallet.LastWithdrawAmount == nil {
 			return fmt.Errorf("%s: LastWithdrawAmount - expected a value but got nil", test_name)
 		}
-		if *expectedWallet.LastWithdrawAmount != transaction.Amount {
-			return fmt.Errorf("%s: LastWithdrawAmount - expected %d but got %d", test_name, *expectedWallet.LastWithdrawAmount, transaction.Amount)
+		if *test.ExpectedWallet.LastWithdrawAmount != transaction.Amount {
+			return fmt.Errorf("%s: LastWithdrawAmount - expected %d but got %d", test_name, *test.ExpectedWallet.LastWithdrawAmount, transaction.Amount)
 		}
 	}
 
-	if payload.Amount != transaction.Amount {
-		return fmt.Errorf("%s: Amount - expected %d but got %d", test_name, payload.Amount, transaction.Amount)
+	if test.Payload.Amount != transaction.Amount {
+		return fmt.Errorf("%s: Amount - expected %d but got %d", test_name, test.Payload.Amount, transaction.Amount)
 	}
 
-	if payloadHash := utils.GenerateTransactionHash(strings.ToUpper(payload.Username), string(txnType), payload.Amount, nil, transaction.Timestamp.UTC().Format(time.RFC3339)); payloadHash != transaction.Hash {
+	if payloadHash := utils.GenerateTransactionHash(strings.ToUpper(test.SanitizedPayloadUsername()), string(test.TxnType), test.Payload.Amount, nil, transaction.Timestamp.UTC().Format(time.RFC3339)); payloadHash != transaction.Hash {
 		return fmt.Errorf("%s: Calculated payload hash %s does not match %s", test_name, payloadHash[:10], transaction.Hash[:10])
 	}
 	return nil

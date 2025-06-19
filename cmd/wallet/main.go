@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/ezjuanify/wallet/internal/appserv"
 	"github.com/ezjuanify/wallet/internal/db"
 	"github.com/ezjuanify/wallet/internal/handler"
 	"github.com/ezjuanify/wallet/internal/logger"
@@ -45,7 +46,7 @@ func main() {
 	wh := handler.NewWalletHandler(ds, ws, ts)
 	logger.Info("All services initialized")
 
-	ap := service.NewAppServer()
+	ap := appserv.NewAppServer()
 	logger.Debug("Attaching HealthHandler")
 	ap.Mux.HandleFunc("/health", handler.HealthHandler)
 	logger.Debug("Attaching DepositHandler")
