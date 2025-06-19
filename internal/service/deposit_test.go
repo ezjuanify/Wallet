@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 	"time"
 
@@ -34,7 +35,7 @@ func (m *mockDepositStore) initializeMockWallet() {
 	}
 }
 
-func (m *mockDepositStore) UpsertWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+func (m *mockDepositStore) UpsertWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
 	currentTimestamp := time.Now().UTC()
 	w, ok := m.wallets[username]
 	if !ok {
@@ -185,7 +186,7 @@ func TestDoDeposit(t *testing.T) {
 			mock := &mockDepositStore{}
 			mock.initializeMockWallet()
 			s := &DepositService{store: mock}
-			actual, err := s.DoDeposit(context.Background(), test.username, test.amount)
+			actual, err := s.DoDeposit(context.Background(), nil, test.username, test.amount)
 
 			if test.expectErr && err == nil {
 				t.Errorf("expected error but got nil")

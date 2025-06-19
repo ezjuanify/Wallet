@@ -43,7 +43,7 @@ func main() {
 	ds := service.NewDepositService(store)
 	ws := service.NewWithdrawService(store)
 	ts := service.NewTransactionService(store)
-	wh := handler.NewWalletHandler(ds, ws, ts)
+	wh := handler.NewWalletHandler(store, ds, ws, ts)
 	logger.Info("All services initialized")
 
 	ap := appserv.NewAppServer()
@@ -53,6 +53,8 @@ func main() {
 	ap.Mux.HandleFunc("/deposit", wh.DepositHandler)
 	logger.Debug("Attaching WithdrawHandler")
 	ap.Mux.HandleFunc("/withdraw", wh.WithdrawHandler)
+	logger.Debug("Attaching TransferHandler")
+	ap.Mux.HandleFunc("/transfer", wh.TransferHandler)
 	logger.Info("All API handlers attached")
 
 	if err := ap.GetEnvPort(); err != nil {

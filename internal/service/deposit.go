@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/ezjuanify/wallet/internal/logger"
@@ -11,7 +12,7 @@ import (
 )
 
 type DepositStore interface {
-	UpsertWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error)
+	UpsertWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error)
 	FetchWallet(ctx context.Context, username string) (*model.Wallet, error)
 }
 
@@ -24,7 +25,7 @@ func NewDepositService(store DepositStore) *DepositService {
 	return &DepositService{store: store}
 }
 
-func (s *DepositService) DoDeposit(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+func (s *DepositService) DoDeposit(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
 	funcName := "DepositService.DoDeposit"
 	logger.Info(fmt.Sprintf("%s - Params received", funcName), zap.String("username", username), zap.Int64("amount", amount))
 	username, err := validation.SanitizeAndValidateUsername(username)
@@ -43,18 +44,18 @@ func (s *DepositService) DoDeposit(ctx context.Context, username string, amount 
 		return nil, err
 	}
 	if currentWallet != nil {
-		logger.Info(fmt.Sprintf("%s - Validating if amount breaches upper limit", funcName), []zap.Field{
-			zap.Int64("wallet_balance", currentWallet.Balance),
-			zap.Int64("payload_amount", amount),
-			zap.Int64("resulting_balance", currentWallet.Balance+amount),
-		}...)
 		if err := validation.ValidateWalletBalance(currentWallet.Balance + amount); err != nil {
 			logger.Error(fmt.Sprintf("%s - Wallet balance validation failed", funcName), zap.String("error", err.Error()))
 			return nil, fmt.Errorf("exceeds upper limit - wallet balance: %d  - deposit: %d - exceed: %d", currentWallet.Balance, amount, currentWallet.Balance+amount)
 		}
+		logger.Info(fmt.Sprintf("%s - Wallet balance validated", funcName), []zap.Field{
+			zap.Int64("wallet_balance", currentWallet.Balance),
+			zap.Int64("payload_amount", amount),
+			zap.Int64("resulting_balance", currentWallet.Balance+amount),
+		}...)
 	}
 
-	updatedWallet, err := s.store.UpsertWallet(ctx, username, amount)
+	updatedWallet, err := s.store.UpsertWallet(ctx, tx, username, amount)
 	if err != nil {
 		return nil, err
 	}

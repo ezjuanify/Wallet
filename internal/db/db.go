@@ -59,7 +59,11 @@ func NewStore(pgconfig *PGConfig) (*Store, error) {
 	return &Store{DB: db}, nil
 }
 
-func (s *Store) InsertTransaction(ctx context.Context, txn model.Transaction) error {
+func (s *Store) BeginTransaction(ctx context.Context) (*sql.Tx, error) {
+	return s.DB.BeginTx(ctx, nil)
+}
+
+func (s *Store) InsertTransaction(ctx context.Context, tx *sql.Tx, txn model.Transaction) error {
 	logger.Debug("DBStore.InsertTransaction - parameters", zap.Any("transaction", txn))
 	query := `
 		INSERT INTO transactions (username, type, amount, counterparty, timestamp, hash) 
@@ -67,7 +71,7 @@ func (s *Store) InsertTransaction(ctx context.Context, txn model.Transaction) er
 	`
 	logger.Debug("InsertTransaction - query", zap.String("query", query))
 
-	_, err := s.DB.ExecContext(
+	_, err := tx.ExecContext(
 		ctx,
 		query,
 		txn.Username,
@@ -111,7 +115,7 @@ func (s *Store) FetchWallet(ctx context.Context, username string) (*model.Wallet
 	return &wallet, nil
 }
 
-func (s *Store) UpsertWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+func (s *Store) UpsertWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
 	logger.Debug("DBStore.UpsertWallet - parameters", zap.String("username", username), zap.Int64("amount", amount))
 	query := `
 		INSERT INTO wallets (username, balance, last_deposit_amount, last_deposit_updated)
@@ -126,7 +130,7 @@ func (s *Store) UpsertWallet(ctx context.Context, username string, amount int64)
 	logger.Debug("DBStore.UpsertWallet - query", zap.String("query", query))
 
 	var wallet model.Wallet
-	err := s.DB.QueryRowContext(
+	err := tx.QueryRowContext(
 		ctx,
 		query,
 		username,
@@ -147,7 +151,7 @@ func (s *Store) UpsertWallet(ctx context.Context, username string, amount int64)
 	return &wallet, nil
 }
 
-func (s *Store) WithdrawWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+func (s *Store) WithdrawWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
 	logger.Debug("DBStore.WithdrawWallet - parameters", zap.String("username", username), zap.Int64("amount", amount))
 	query := `
 		UPDATE wallets
@@ -163,7 +167,7 @@ func (s *Store) WithdrawWallet(ctx context.Context, username string, amount int6
 	logger.Debug("DBStore.WithdrawWallet - query", zap.String("query", query))
 
 	var wallet model.Wallet
-	err := s.DB.QueryRowContext(
+	err := tx.QueryRowContext(
 		ctx,
 		query,
 		amount,

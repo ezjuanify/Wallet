@@ -19,7 +19,7 @@ const (
 	PG_SSL              = "disable"
 )
 
-func startTestDB() {
+func runTestDB() error {
 	cmd := exec.Command("docker", "run",
 		"--rm",
 		"--name", TEST_CONTAINER_NAME,
@@ -33,8 +33,21 @@ func startTestDB() {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatalf("Failed to start test DB container: %v\nOutput: %s", err, out)
+		return fmt.Errorf("docker run failed: %v\nOutput: %s", err, out)
 	}
+	return nil
+}
+
+func startTestDB() {
+	if err := runTestDB(); err != nil {
+		log.Printf("First attempt to start DB failed: %v. Retrying...", err)
+		stopTestDB()
+
+		if err := runTestDB(); err != nil {
+			log.Fatalf("Second attempt to start DB failed: %v", err)
+		}
+	}
+
 }
 
 func stopTestDB() {

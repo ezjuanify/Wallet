@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"testing"
 	"time"
@@ -35,7 +36,7 @@ func (m *mockWithdrawStore) initializeMockWallet() {
 	}
 }
 
-func (m *mockWithdrawStore) WithdrawWallet(ctx context.Context, username string, amount int64) (*model.Wallet, error) {
+func (m *mockWithdrawStore) WithdrawWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
 	currentTimestamp := time.Now().UTC()
 	w, ok := m.wallets[username]
 	if !ok {
@@ -184,7 +185,7 @@ func TestDoWithdraw(t *testing.T) {
 			mock.initializeMockWallet()
 			s := &WithdrawService{store: mock}
 
-			actual, err := s.DoWithdraw(context.Background(), test.username, test.amount)
+			actual, err := s.DoWithdraw(context.Background(), nil, test.username, test.amount)
 
 			if test.expectErr && err == nil {
 				t.Errorf("expected error but got nil")

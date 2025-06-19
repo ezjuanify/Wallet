@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -22,7 +23,7 @@ func NewTransactionService(store *db.Store) *TransactionService {
 	return &TransactionService{store: store}
 }
 
-func (ts *TransactionService) LogTransaction(ctx context.Context, txUser string, txType model.TransactionType, txAmount int64, txCounterparty *string) error {
+func (ts *TransactionService) LogTransaction(ctx context.Context, tx *sql.Tx, txUser string, txType model.TransactionType, txAmount int64, txCounterparty *string) error {
 	if txAmount <= 0 {
 		return fmt.Errorf("skipping transaction logging for 0 amount")
 	}
@@ -47,6 +48,6 @@ func (ts *TransactionService) LogTransaction(ctx context.Context, txUser string,
 		Hash:         hash,
 	}
 	logger.Info("TransactionService.LogTransaction - Inserting transaction", zap.Any("transaction", txn))
-	err = ts.store.InsertTransaction(ctx, txn)
+	err = ts.store.InsertTransaction(ctx, tx, txn)
 	return err
 }
