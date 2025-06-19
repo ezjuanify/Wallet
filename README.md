@@ -32,7 +32,7 @@ App will be available at: `http://localhost:8080`
 
 ### POST `/deposit`
 
-Deposit funds into a wallet.
+Deposit funds into a user wallet.
 
 #### Request
 ```json
@@ -58,9 +58,11 @@ Deposit funds into a wallet.
 }
 ```
 
+---
+
 ### POST `/withdraw`
 
-Withdraw funds from wallet.
+Withdraw funds from user wallet.
 
 #### Request
 ```json
@@ -83,6 +85,38 @@ Withdraw funds from wallet.
         "lastWithdrawAmount": 1000,
         "lastWithdrawUpdated": "2025-06-17T19:13:04.857005Z"
     }
+}
+```
+
+---
+
+### POST `/transfer`
+
+Transfer funds from user wallet to counterparty wallet.
+
+#### Request
+```json
+{
+    "username": "juan",
+    "amount": 500,
+    "counterparty": "mary"
+}
+```
+
+#### Response
+```json
+{
+    "status": 200,
+    "action": "transfer",
+    "wallet": {
+        "username": "JUAN",
+        "balance": 4000,
+        "lastDepositAmount": 5000,
+        "lastDepositUpdated": "2025-06-19T19:10:11.082386Z",
+        "lastWithdrawAmount": 500,
+        "lastWithdrawUpdated": "2025-06-19T19:10:14.430453Z"
+    },
+    "counterparty": "MARY"
 }
 ```
 
