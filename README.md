@@ -58,6 +58,34 @@ Deposit funds into a wallet.
 }
 ```
 
+### POST `/withdraw`
+
+Withdraw funds from wallet.
+
+#### Request
+```json
+{
+    "username": "juan",
+    "amount": 1000
+}
+```
+
+#### Response
+```json
+{
+    "status": 200,
+    "action": "withdraw",
+    "wallet": {
+        "username": "JUAN",
+        "balance": 0,
+        "lastDepositAmount": 500,
+        "lastDepositUpdated": "2025-06-17T19:13:02.722774Z",
+        "lastWithdrawAmount": 1000,
+        "lastWithdrawUpdated": "2025-06-17T19:13:04.857005Z"
+    }
+}
+```
+
 ## Testing
 
 ### Unit Tests
