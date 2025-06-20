@@ -51,6 +51,7 @@ func TestMain(m *testing.M) {
 	mux.HandleFunc("/health", handler.HealthHandler)
 	mux.HandleFunc("/deposit", wh.DepositHandler)
 	mux.HandleFunc("/withdraw", wh.WithdrawHandler)
+	mux.HandleFunc("/transfer", wh.TransferHandler)
 
 	go func() {
 		log.Printf("Integration server starting on :%s\n", TEST_WALLET_PORT)

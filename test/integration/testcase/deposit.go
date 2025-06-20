@@ -10,13 +10,15 @@ func AddDepositTestCases() []TestCase {
 		{
 			Name:    "Integration Test: Successful Deposit - Empty initial wallet",
 			TxnType: model.TransactionType(model.TypeDeposit),
-			InitialWallet: &model.Wallet{
-				Username:            "JUAN",
-				Balance:             0,
-				LastDepositAmount:   nil,
-				LastDepositUpdated:  nil,
-				LastWithdrawAmount:  nil,
-				LastWithdrawUpdated: nil,
+			InitialWallets: []model.Wallet{
+				{
+					Username:            "JUAN",
+					Balance:             0,
+					LastDepositAmount:   nil,
+					LastDepositUpdated:  nil,
+					LastWithdrawAmount:  nil,
+					LastWithdrawUpdated: nil,
+				},
 			},
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -26,9 +28,9 @@ func AddDepositTestCases() []TestCase {
 			ExpectErr:      false,
 		},
 		{
-			Name:          "Integration Test: Successful Deposit - Normal",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
+			Name:           "Integration Test: Successful Deposit - Normal",
+			TxnType:        model.TransactionType(model.TypeDeposit),
+			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   500,
@@ -39,9 +41,15 @@ func AddDepositTestCases() []TestCase {
 		{
 			Name:    "Integration Test: Successful Deposit - Username case insensitivity",
 			TxnType: model.TransactionType(model.TypeDeposit),
-			InitialWallet: &model.Wallet{
-				Username: "JUAN",
-				Balance:  100,
+			InitialWallets: []model.Wallet{
+				{
+					Username:            "JUAN",
+					Balance:             100,
+					LastDepositAmount:   nil,
+					LastDepositUpdated:  nil,
+					LastWithdrawAmount:  nil,
+					LastWithdrawUpdated: nil,
+				},
 			},
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -53,13 +61,15 @@ func AddDepositTestCases() []TestCase {
 		{
 			Name:    "Integration Test: Successful Deposit - Existing wallet value",
 			TxnType: model.TransactionType(model.TypeDeposit),
-			InitialWallet: &model.Wallet{
-				Username:            "JUAN",
-				Balance:             1000,
-				LastDepositAmount:   nil,
-				LastDepositUpdated:  nil,
-				LastWithdrawAmount:  nil,
-				LastWithdrawUpdated: nil,
+			InitialWallets: []model.Wallet{
+				{
+					Username:            "JUAN",
+					Balance:             1000,
+					LastDepositAmount:   nil,
+					LastDepositUpdated:  nil,
+					LastWithdrawAmount:  nil,
+					LastWithdrawUpdated: nil,
+				},
 			},
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -69,9 +79,9 @@ func AddDepositTestCases() []TestCase {
 			ExpectErr:      false,
 		},
 		{
-			Name:          "Integration Test: Successful Deposit - Alphanumeric and underscore username",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
+			Name:           "Integration Test: Successful Deposit - Alphanumeric and underscore username",
+			TxnType:        model.TransactionType(model.TypeDeposit),
+			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j_uan_123",
 				Amount:   5000,
@@ -82,9 +92,15 @@ func AddDepositTestCases() []TestCase {
 		{
 			Name:    "Integration Test: Successful Deposit - Reaches upper limit exactly",
 			TxnType: model.TransactionType(model.TypeDeposit),
-			InitialWallet: &model.Wallet{
-				Username: "JUAN",
-				Balance:  888888,
+			InitialWallets: []model.Wallet{
+				{
+					Username:            "JUAN",
+					Balance:             888888,
+					LastDepositAmount:   nil,
+					LastDepositUpdated:  nil,
+					LastWithdrawAmount:  nil,
+					LastWithdrawUpdated: nil,
+				},
 			},
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -94,9 +110,9 @@ func AddDepositTestCases() []TestCase {
 			ExpectErr:      false,
 		},
 		{
-			Name:          "Integration Test: Successful Deposit - Max allowed amount",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
+			Name:           "Integration Test: Successful Deposit - Max allowed amount",
+			TxnType:        model.TransactionType(model.TypeDeposit),
+			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "juan",
 				Amount:   999999,
@@ -105,9 +121,9 @@ func AddDepositTestCases() []TestCase {
 			ExpectErr:      false,
 		},
 		{
-			Name:          "Integration Test: Successful Deposit - Username with spaces",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
+			Name:           "Integration Test: Successful Deposit - Username with spaces",
+			TxnType:        model.TransactionType(model.TypeDeposit),
+			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: " _ju_an_ ",
 				Amount:   999999,
@@ -116,9 +132,9 @@ func AddDepositTestCases() []TestCase {
 			ExpectErr:      false,
 		},
 		{
-			Name:          "Integration Test: Fail Deposit - Zero amount",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
+			Name:           "Integration Test: Fail Deposit - Zero amount",
+			TxnType:        model.TransactionType(model.TypeDeposit),
+			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j_123",
 				Amount:   0,
@@ -129,13 +145,15 @@ func AddDepositTestCases() []TestCase {
 		{
 			Name:    "Integration Test: Fail Deposit - Negative payload amount",
 			TxnType: model.TransactionType(model.TypeDeposit),
-			InitialWallet: &model.Wallet{
-				Username:            "JUAN",
-				Balance:             1000,
-				LastDepositAmount:   nil,
-				LastDepositUpdated:  nil,
-				LastWithdrawAmount:  nil,
-				LastWithdrawUpdated: nil,
+			InitialWallets: []model.Wallet{
+				{
+					Username:            "JUAN",
+					Balance:             1000,
+					LastDepositAmount:   nil,
+					LastDepositUpdated:  nil,
+					LastWithdrawAmount:  nil,
+					LastWithdrawUpdated: nil,
+				},
 			},
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -145,9 +163,9 @@ func AddDepositTestCases() []TestCase {
 			ExpectErr:      true,
 		},
 		{
-			Name:          "Integration Test: Fail Deposit - Invalid character username",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
+			Name:           "Integration Test: Fail Deposit - Invalid character username",
+			TxnType:        model.TransactionType(model.TypeDeposit),
+			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j@uan",
 				Amount:   500,
@@ -156,9 +174,9 @@ func AddDepositTestCases() []TestCase {
 			ExpectErr:      true,
 		},
 		{
-			Name:          "Integration Test: Fail Deposit - Over limit amount",
-			TxnType:       model.TransactionType(model.TypeDeposit),
-			InitialWallet: nil,
+			Name:           "Integration Test: Fail Deposit - Over limit amount",
+			TxnType:        model.TransactionType(model.TypeDeposit),
+			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j_123",
 				Amount:   1000000,
@@ -169,9 +187,15 @@ func AddDepositTestCases() []TestCase {
 		{
 			Name:    "Integration Test: Fail Deposit - Exceeds limit in wallet",
 			TxnType: model.TransactionType(model.TypeDeposit),
-			InitialWallet: &model.Wallet{
-				Username: "JUAN",
-				Balance:  900000,
+			InitialWallets: []model.Wallet{
+				{
+					Username:            "JUAN",
+					Balance:             900000,
+					LastDepositAmount:   nil,
+					LastDepositUpdated:  nil,
+					LastWithdrawAmount:  nil,
+					LastWithdrawUpdated: nil,
+				},
 			},
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -183,13 +207,15 @@ func AddDepositTestCases() []TestCase {
 		{
 			Name:    "Integration Test: Fail Deposit - Spaces in username",
 			TxnType: model.TransactionType(model.TypeWithdraw),
-			InitialWallet: &model.Wallet{
-				Username:            "J_123",
-				Balance:             5000,
-				LastDepositAmount:   nil,
-				LastDepositUpdated:  nil,
-				LastWithdrawAmount:  nil,
-				LastWithdrawUpdated: nil,
+			InitialWallets: []model.Wallet{
+				{
+					Username:            "J_123",
+					Balance:             5000,
+					LastDepositAmount:   nil,
+					LastDepositUpdated:  nil,
+					LastWithdrawAmount:  nil,
+					LastWithdrawUpdated: nil,
+				},
 			},
 			Payload: &request.RequestPayload{
 				Username: "j_ 1 2 3",
