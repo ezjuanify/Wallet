@@ -52,7 +52,7 @@ func (h *WalletHandler) TransferHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_, err = h.depositService.DoDeposit(ctx, tx, *payload.Counterparty, payload.Amount)
+	_, err = h.depositService.DoDeposit(ctx, tx, *payload.Counterparty, payload.Amount, true)
 	if err != nil {
 		logger.Error("Wallet deposit failed", zap.String("error", err.Error()), zap.String("user", *payload.Counterparty))
 		http.Error(w, fmt.Sprintf("Deposit Error: %v", err), http.StatusInternalServerError)

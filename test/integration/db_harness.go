@@ -93,6 +93,7 @@ func (h *DBTestHarness) DoTestFetchTransaction(username string) (*model.Transact
 		SELECT username, type, amount, counterparty, timestamp, hash
 		FROM transactions
 		WHERE username = $1
+		ORDER BY timestamp DESC
 		LIMIT 1;
 	`
 

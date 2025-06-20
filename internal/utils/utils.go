@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func PtrInt64(v int64) *int64 { return &v }
+func Ptr[T any](v T) *T { return &v }
 
 func GetPGConfig() (*db.PGConfig, error) {
 	pgconfig := &db.PGConfig{

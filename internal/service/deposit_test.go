@@ -186,7 +186,7 @@ func TestDoDeposit(t *testing.T) {
 			mock := &mockDepositStore{}
 			mock.initializeMockWallet()
 			s := &DepositService{store: mock}
-			actual, err := s.DoDeposit(context.Background(), nil, test.username, test.amount)
+			actual, err := s.DoDeposit(context.Background(), nil, test.username, test.amount, false)
 
 			if test.expectErr && err == nil {
 				t.Errorf("expected error but got nil")

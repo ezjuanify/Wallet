@@ -44,7 +44,7 @@ func (h *WalletHandler) DepositHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Debug("Decoded deposit payload", zap.Any("payload", payload))
 
-	wallet, err := h.depositService.DoDeposit(ctx, tx, payload.Username, payload.Amount)
+	wallet, err := h.depositService.DoDeposit(ctx, tx, payload.Username, payload.Amount, false)
 	if err != nil {
 		logger.Error("Wallet deposit failed", zap.String("error", err.Error()), zap.String("user", payload.Username))
 		http.Error(w, fmt.Sprintf("Deposit Error: %v", err), http.StatusInternalServerError)

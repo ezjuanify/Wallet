@@ -106,7 +106,7 @@ func (s *Store) FetchWallet(ctx context.Context, username string) (*model.Wallet
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logger.Warn("DBStore.FetchWallet - No wallet found for username", zap.String("username", username))
+			logger.Debug("DBStore.FetchWallet - No wallet found for username", zap.String("username", username))
 			return nil, nil
 		}
 		return nil, err
