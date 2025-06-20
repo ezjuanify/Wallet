@@ -120,6 +120,72 @@ Transfer funds from user wallet to counterparty wallet.
 }
 ```
 
+---
+
+### GET `/transactions`
+
+Get transactions based on url parameters. These are the following params:
+
+- **username** - Search by username
+- **counterparty** - Search by counterparty
+- **type** - Search by transaction type (deposit, withdraw, transfer_in, transfer_out)
+- **limit** - Number of results to return
+
+#### URL Params
+```
+localhost:8080/transactions?username=juan
+```
+
+#### Response
+```json
+{
+    "status": 200,
+    "criteria": {
+        "username": "JUAN"
+    },
+    "transactions": [
+        {
+            "ID": 6,
+            "username": "JUAN",
+            "txnType": "transfer_out",
+            "amount": 200,
+            "counterparty": "MARY",
+            "timestamp": "2025-06-20T18:44:24.477541Z",
+            "hash": "a7daa5cbb02736bef787cf26b4f8f05a9fc841b36fc77f8b7c3a37a499c19710"
+        },
+        {
+            "ID": 4,
+            "username": "JUAN",
+            "txnType": "transfer_out",
+            "amount": 100,
+            "counterparty": "MARY",
+            "timestamp": "2025-06-20T18:44:20.031824Z",
+            "hash": "8fb9e0158a425d1f710e713adcf0b55f74939126d4db697652215ea3851738c8"
+        },
+        {
+            "ID": 3,
+            "username": "JUAN",
+            "txnType": "withdraw",
+            "amount": 500,
+            "counterparty": null,
+            "timestamp": "2025-06-20T18:44:18.298866Z",
+            "hash": "4c99053a7a8b566f4a1e4eb71efe29f0f977de18b61643f461bc77554556478d"
+        },
+        {
+            "ID": 1,
+            "username": "JUAN",
+            "txnType": "deposit",
+            "amount": 2000,
+            "counterparty": null,
+            "timestamp": "2025-06-20T18:44:08.593154Z",
+            "hash": "394ee8225f8f9a35e2f8b79df17f32533490497a7c98dd0ed26cc42eb8459155"
+        }
+    ]
+}
+```
+
+
+
 ## Testing
 
 ### Unit Tests
