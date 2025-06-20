@@ -8,7 +8,7 @@ import (
 
 type TestCase struct {
 	Name                       string
-	TxnType                    model.TransactionType
+	TxnType                    model.TxnType
 	Payload                    *request.RequestPayload
 	InitialWallets             []model.Wallet
 	ExpectedWallet             *model.Wallet

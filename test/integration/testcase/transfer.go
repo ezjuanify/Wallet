@@ -10,7 +10,7 @@ func AddTransferTestCases() []TestCase {
 	return []TestCase{
 		{
 			Name:    "Integration Test: Successful Transfer - Normal existing account",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -38,7 +38,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Successful Transfer - Full transfer",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -66,7 +66,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Transfer - Negative amount",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -94,7 +94,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Transfer - Insufficient funds from user wallet",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -122,7 +122,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Transfer - Transfer over limit",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -150,7 +150,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Transfer - User wallet does not exist",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "MARY",
@@ -170,7 +170,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Transfer - Counterparty wallet does not exist",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -190,7 +190,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Fail Transfer - No wallets",
-			TxnType:        model.TransactionType(model.TypeTransfer),
+			TxnType:        model.TypeTransfer,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username:     "juan",
@@ -201,7 +201,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Transfer - Symbol in username",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JAN",
@@ -229,7 +229,7 @@ func AddTransferTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Transfer - Symbol in counterparty",
-			TxnType: model.TransactionType(model.TypeTransfer),
+			TxnType: model.TypeTransfer,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JAN",

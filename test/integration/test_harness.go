@@ -27,7 +27,7 @@ func waitForHTTPServerReady(maxRetries int, interval time.Duration, host string,
 	return fmt.Errorf("HTTP server not ready after %d attempts", maxRetries)
 }
 
-func DoTestRequest(txnType model.TransactionType, payload *request.RequestPayload, host string, port string) (*http.Response, error) {
+func DoTestRequest(txnType model.TxnType, payload *request.RequestPayload, host string, port string) (*http.Response, error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal JSON: %s", err)
@@ -70,7 +70,7 @@ func DoTestRespFormatValidation(resp *http.Response) (*model.Wallet, error) {
 	return &result.Wallet, nil
 }
 
-func DoTestWalletValidation(test_name string, txnType model.TransactionType, expected *model.Wallet, actual *model.Wallet, isCounterparty bool) error {
+func DoTestWalletValidation(test_name string, txnType model.TxnType, expected *model.Wallet, actual *model.Wallet, isCounterparty bool) error {
 	if actual == nil {
 		return fmt.Errorf("%s: Wallet is nil", test_name)
 	}
@@ -124,7 +124,7 @@ func DoTestWalletValidation(test_name string, txnType model.TransactionType, exp
 	return nil
 }
 
-func DoTestTransactionValidation(test_name string, txnType model.TransactionType, expected *model.Wallet, counterparty *model.Wallet, transaction *model.Transaction, isCounterparty bool) error {
+func DoTestTransactionValidation(test_name string, txnType model.TxnType, expected *model.Wallet, counterparty *model.Wallet, transaction *model.Transaction, isCounterparty bool) error {
 	if transaction == nil {
 		return fmt.Errorf("%s: transaction is nil", test_name)
 	}
@@ -145,8 +145,8 @@ func DoTestTransactionValidation(test_name string, txnType model.TransactionType
 
 	switch txnType {
 	case model.TypeDeposit:
-		if model.TransactionType(transaction.Type) != model.TypeDeposit {
-			return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeDeposit, transaction.Type)
+		if model.TxnType(transaction.TxnType) != model.TypeDeposit {
+			return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeDeposit, transaction.TxnType)
 		}
 		if expected.LastDepositAmount == nil {
 			return fmt.Errorf("%s: LastDepositAmount - expected a value but got nil", test_name)
@@ -156,8 +156,8 @@ func DoTestTransactionValidation(test_name string, txnType model.TransactionType
 		}
 		amount = *expected.LastDepositAmount
 	case model.TypeWithdraw:
-		if model.TransactionType(transaction.Type) != model.TypeWithdraw {
-			return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeWithdraw, transaction.Type)
+		if model.TxnType(transaction.TxnType) != model.TypeWithdraw {
+			return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeWithdraw, transaction.TxnType)
 		}
 		if expected.LastWithdrawAmount == nil {
 			return fmt.Errorf("%s: LastWithdrawAmount - expected a value but got nil", test_name)
@@ -168,8 +168,8 @@ func DoTestTransactionValidation(test_name string, txnType model.TransactionType
 		amount = *expected.LastWithdrawAmount
 	case model.TypeTransfer:
 		if isCounterparty {
-			if model.TransactionType(transaction.Type) != model.TypeTransferIn {
-				return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeTransferIn, transaction.Type)
+			if model.TxnType(transaction.TxnType) != model.TypeTransferIn {
+				return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeTransferIn, transaction.TxnType)
 			}
 			if expected.LastDepositAmount == nil {
 				return fmt.Errorf("%s: LastDepositAmount - expected a value but got nil", test_name)
@@ -179,8 +179,8 @@ func DoTestTransactionValidation(test_name string, txnType model.TransactionType
 			}
 			amount = *expected.LastDepositAmount
 		} else {
-			if model.TransactionType(transaction.Type) != model.TypeTransferOut {
-				return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeTransferOut, transaction.Type)
+			if model.TxnType(transaction.TxnType) != model.TypeTransferOut {
+				return fmt.Errorf("%s: Transaction type - expected %s but got %s", test_name, model.TypeTransferOut, transaction.TxnType)
 			}
 			if expected.LastWithdrawAmount == nil {
 				return fmt.Errorf("%s: LastWithdrawAmount - expected a value but got nil", test_name)
@@ -204,7 +204,7 @@ func DoTestTransactionValidation(test_name string, txnType model.TransactionType
 
 	if payloadHash := utils.GenerateTransactionHash(
 		expected.Username,
-		transaction.Type,
+		transaction.TxnType,
 		amount,
 		counterpartyUsername,
 		transaction.Timestamp.UTC().Format(time.RFC3339),

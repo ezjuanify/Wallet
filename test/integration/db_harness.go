@@ -102,7 +102,7 @@ func (h *DBTestHarness) DoTestFetchTransaction(username string) (*model.Transact
 	var t model.Transaction
 	err := row.Scan(
 		&t.Username,
-		&t.Type,
+		&t.TxnType,
 		&t.Amount,
 		&t.Counterparty,
 		&t.Timestamp,

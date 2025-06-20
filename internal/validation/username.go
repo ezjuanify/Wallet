@@ -31,3 +31,9 @@ func SanitizeAndValidateUsername(raw string) (string, error) {
 	}
 	return username, nil
 }
+
+func SanitizeUsernameWithoutError(username string) string {
+	var removeUsernameIllegalRegex = regexp.MustCompile(`[^a-zA-Z0-9_]+`)
+	username = removeUsernameIllegalRegex.ReplaceAllString(username, "")
+	return strings.ToUpper(username)
+}

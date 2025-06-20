@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/ezjuanify/wallet/internal/logger"
 	"github.com/ezjuanify/wallet/internal/model"
@@ -63,8 +64,90 @@ func (s *Store) BeginTransaction(ctx context.Context) (*sql.Tx, error) {
 	return s.DB.BeginTx(ctx, nil)
 }
 
+func (s *Store) FetchTransaction(ctx context.Context, criteria *model.Criteria) ([]model.Transaction, error) {
+	fnName := "DBStore.FetchTransaction"
+	logger.Debug(fmt.Sprintf("%s - parameters", fnName), zap.Any("criteria", criteria))
+	var (
+		query      strings.Builder
+		args       []interface{}
+		conditions []string
+		argPos     = 1
+	)
+
+	query.WriteString("SELECT id, username, type, amount, counterparty, timestamp, hash FROM transactions")
+
+	if criteria.Username != "" {
+		conditions = append(conditions, fmt.Sprintf("username = $%d", argPos))
+		args = append(args, criteria.Username)
+		argPos++
+	}
+	if criteria.Counterparty != "" {
+		conditions = append(conditions, fmt.Sprintf("counterparty = $%d", argPos))
+		args = append(args, criteria.Counterparty)
+		argPos++
+	}
+	if criteria.TxnType != "" {
+		conditions = append(conditions, fmt.Sprintf("type = $%d", argPos))
+		args = append(args, criteria.TxnType)
+		argPos++
+	}
+	if len(conditions) > 0 {
+		query.WriteString(" WHERE ")
+		query.WriteString(strings.Join(conditions, " AND "))
+	}
+
+	query.WriteString(" ORDER BY timestamp DESC")
+
+	if criteria.Limit > 0 {
+		query.WriteString(fmt.Sprintf(" LIMIT $%d ", argPos))
+		args = append(args, criteria.Limit)
+		argPos++
+	}
+
+	logger.Info(fmt.Sprintf("%s - Query built", fnName), zap.String("query", query.String()))
+
+	transactions := []model.Transaction{}
+
+	rows, err := s.DB.QueryContext(
+		ctx,
+		query.String(),
+		args...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var txn model.Transaction
+		err := rows.Scan(
+			&txn.ID,
+			&txn.Username,
+			&txn.TxnType,
+			&txn.Amount,
+			&txn.Counterparty,
+			&txn.Timestamp,
+			&txn.Hash,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		transactions = append(transactions, txn)
+	}
+
+	logger.Debug(fmt.Sprintf("%s - Transactions found", fnName), zap.Any("transactions", transactions), zap.Int("count", len(transactions)))
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}
+
 func (s *Store) InsertTransaction(ctx context.Context, tx *sql.Tx, txn model.Transaction) error {
-	logger.Debug("DBStore.InsertTransaction - parameters", zap.Any("transaction", txn))
+	fnName := "DBStore.InsertTransaction"
+	logger.Debug(fmt.Sprintf("%s - parameters", fnName), zap.Any("transaction", txn))
 	query := `
 		INSERT INTO transactions (username, type, amount, counterparty, timestamp, hash) 
 		VALUES ($1, $2, $3, $4, $5, $6);
@@ -75,7 +158,7 @@ func (s *Store) InsertTransaction(ctx context.Context, tx *sql.Tx, txn model.Tra
 		ctx,
 		query,
 		txn.Username,
-		txn.Type,
+		txn.TxnType,
 		txn.Amount,
 		txn.Counterparty,
 		txn.Timestamp,
@@ -85,13 +168,14 @@ func (s *Store) InsertTransaction(ctx context.Context, tx *sql.Tx, txn model.Tra
 }
 
 func (s *Store) FetchWallet(ctx context.Context, username string) (*model.Wallet, error) {
-	logger.Debug("DBStore.FetchWallet - parameters", zap.String("username", username))
+	fnName := "DBStore.FetchWallet"
+	logger.Debug(fmt.Sprintf("%s - parameters", fnName), zap.String("username", username))
 	query := `
 		SELECT username, balance, last_deposit_amount, last_deposit_updated, last_withdraw_amount, last_withdraw_updated
 		FROM wallets
 		WHERE username = $1;
 	`
-	logger.Debug("DBStore.FetchWallet - query", zap.String("query", query))
+	logger.Debug(fmt.Sprintf("%s - query", fnName), zap.String("query", query))
 
 	row := s.DB.QueryRowContext(ctx, query, username)
 
@@ -106,17 +190,18 @@ func (s *Store) FetchWallet(ctx context.Context, username string) (*model.Wallet
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logger.Debug("DBStore.FetchWallet - No wallet found for username", zap.String("username", username))
+			logger.Debug(fmt.Sprintf("%s - No wallet found for username", fnName), zap.String("username", username))
 			return nil, nil
 		}
 		return nil, err
 	}
-	logger.Debug("DBStore.FetchWallet - after query execution", zap.Any("wallet", wallet))
+	logger.Debug(fmt.Sprintf("%s - after query execution", fnName), zap.Any("wallet", wallet))
 	return &wallet, nil
 }
 
 func (s *Store) UpsertWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
-	logger.Debug("DBStore.UpsertWallet - parameters", zap.String("username", username), zap.Int64("amount", amount))
+	fnName := "DBStore.UpsertWallet"
+	logger.Debug(fmt.Sprintf("%s - parameters", fnName), zap.String("username", username), zap.Int64("amount", amount))
 	query := `
 		INSERT INTO wallets (username, balance, last_deposit_amount, last_deposit_updated)
 		VALUES ($1, $2, $3, now())
@@ -127,7 +212,7 @@ func (s *Store) UpsertWallet(ctx context.Context, tx *sql.Tx, username string, a
 		last_deposit_updated = now()
 		RETURNING username, balance, last_deposit_amount, last_deposit_updated, last_withdraw_amount, last_withdraw_updated;
 	`
-	logger.Debug("DBStore.UpsertWallet - query", zap.String("query", query))
+	logger.Debug(fmt.Sprintf("%s - query", fnName), zap.String("query", query))
 
 	var wallet model.Wallet
 	err := tx.QueryRowContext(
@@ -147,12 +232,13 @@ func (s *Store) UpsertWallet(ctx context.Context, tx *sql.Tx, username string, a
 	if err != nil {
 		return nil, err
 	}
-	logger.Debug("DBStore.UpsertWallet - after query execution", zap.Any("wallet", wallet))
+	logger.Debug(fmt.Sprintf("%s - after query execution", fnName), zap.Any("wallet", wallet))
 	return &wallet, nil
 }
 
 func (s *Store) WithdrawWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
-	logger.Debug("DBStore.WithdrawWallet - parameters", zap.String("username", username), zap.Int64("amount", amount))
+	fnName := "DBStore.WithdrawWallet"
+	logger.Debug(fmt.Sprintf("%s - parameters", fnName), zap.String("username", username), zap.Int64("amount", amount))
 	query := `
 		UPDATE wallets
 		SET
@@ -164,7 +250,7 @@ func (s *Store) WithdrawWallet(ctx context.Context, tx *sql.Tx, username string,
 		AND balance >= $1
 		RETURNING username, balance, last_deposit_amount, last_deposit_updated, last_withdraw_amount, last_withdraw_updated;
 	`
-	logger.Debug("DBStore.WithdrawWallet - query", zap.String("query", query))
+	logger.Debug(fmt.Sprintf("%s - query", fnName), zap.String("query", query))
 
 	var wallet model.Wallet
 	err := tx.QueryRowContext(
@@ -183,6 +269,6 @@ func (s *Store) WithdrawWallet(ctx context.Context, tx *sql.Tx, username string,
 	if err != nil {
 		return nil, err
 	}
-	logger.Debug("DBStore.WithdrawWallet - after query execution", zap.Any("wallet", wallet))
+	logger.Debug(fmt.Sprintf("%s - after query execution", fnName), zap.Any("wallet", wallet))
 	return &wallet, nil
 }

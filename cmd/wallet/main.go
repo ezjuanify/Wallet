@@ -48,13 +48,15 @@ func main() {
 
 	ap := appserv.NewAppServer()
 	logger.Debug("Attaching HealthHandler")
-	ap.Mux.HandleFunc("/health", handler.HealthHandler)
+	ap.Mux.HandleFunc(appserv.HEALTH, handler.HealthHandler)
 	logger.Debug("Attaching DepositHandler")
-	ap.Mux.HandleFunc("/deposit", wh.DepositHandler)
+	ap.Mux.HandleFunc(appserv.DEPOSIT, wh.DepositHandler)
 	logger.Debug("Attaching WithdrawHandler")
-	ap.Mux.HandleFunc("/withdraw", wh.WithdrawHandler)
+	ap.Mux.HandleFunc(appserv.WITHDRAW, wh.WithdrawHandler)
 	logger.Debug("Attaching TransferHandler")
-	ap.Mux.HandleFunc("/transfer", wh.TransferHandler)
+	ap.Mux.HandleFunc(appserv.TRANSFER, wh.TransferHandler)
+	logger.Debug("Attaching TransactionHandler")
+	ap.Mux.HandleFunc(appserv.TRANSACTION, wh.TransactionHandler)
 	logger.Info("All API handlers attached")
 
 	if err := ap.GetEnvPort(); err != nil {
