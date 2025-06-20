@@ -9,7 +9,7 @@ func AddDepositTestCases() []TestCase {
 	return []TestCase{
 		{
 			Name:    "Integration Test: Successful Deposit - Empty initial wallet",
-			TxnType: model.TransactionType(model.TypeDeposit),
+			TxnType: model.TypeDeposit,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -29,7 +29,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Successful Deposit - Normal",
-			TxnType:        model.TransactionType(model.TypeDeposit),
+			TxnType:        model.TypeDeposit,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -40,7 +40,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Successful Deposit - Username case insensitivity",
-			TxnType: model.TransactionType(model.TypeDeposit),
+			TxnType: model.TypeDeposit,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -60,7 +60,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Successful Deposit - Existing wallet value",
-			TxnType: model.TransactionType(model.TypeDeposit),
+			TxnType: model.TypeDeposit,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -80,7 +80,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Successful Deposit - Alphanumeric and underscore username",
-			TxnType:        model.TransactionType(model.TypeDeposit),
+			TxnType:        model.TypeDeposit,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j_uan_123",
@@ -91,7 +91,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Successful Deposit - Reaches upper limit exactly",
-			TxnType: model.TransactionType(model.TypeDeposit),
+			TxnType: model.TypeDeposit,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -111,7 +111,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Successful Deposit - Max allowed amount",
-			TxnType:        model.TransactionType(model.TypeDeposit),
+			TxnType:        model.TypeDeposit,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "juan",
@@ -122,7 +122,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Successful Deposit - Username with spaces",
-			TxnType:        model.TransactionType(model.TypeDeposit),
+			TxnType:        model.TypeDeposit,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: " _ju_an_ ",
@@ -133,7 +133,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Fail Deposit - Zero amount",
-			TxnType:        model.TransactionType(model.TypeDeposit),
+			TxnType:        model.TypeDeposit,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j_123",
@@ -144,7 +144,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Deposit - Negative payload amount",
-			TxnType: model.TransactionType(model.TypeDeposit),
+			TxnType: model.TypeDeposit,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -164,7 +164,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Fail Deposit - Invalid character username",
-			TxnType:        model.TransactionType(model.TypeDeposit),
+			TxnType:        model.TypeDeposit,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j@uan",
@@ -175,7 +175,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Fail Deposit - Over limit amount",
-			TxnType:        model.TransactionType(model.TypeDeposit),
+			TxnType:        model.TypeDeposit,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "j_123",
@@ -186,7 +186,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Deposit - Exceeds limit in wallet",
-			TxnType: model.TransactionType(model.TypeDeposit),
+			TxnType: model.TypeDeposit,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -206,7 +206,7 @@ func AddDepositTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Deposit - Spaces in username",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "J_123",

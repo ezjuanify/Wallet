@@ -21,6 +21,25 @@ type AppServer struct {
 	Port int
 }
 
+const (
+	DEPOSIT     = "/deposit"
+	WITHDRAW    = "/withdraw"
+	TRANSFER    = "/transfer"
+	HEALTH      = "/health"
+	TRANSACTION = "/transactions"
+)
+
+var POSTEndpoint = map[string]struct{}{
+	DEPOSIT:  {},
+	WITHDRAW: {},
+	TRANSFER: {},
+}
+
+var GETEndpoint = map[string]struct{}{
+	TRANSACTION: {},
+	HEALTH:      {},
+}
+
 func requestLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
@@ -30,6 +49,25 @@ func requestLogger(next http.Handler) http.Handler {
 			zap.String("path", r.URL.Path),
 			zap.String("ip", ip),
 		)
+
+		switch r.Method {
+		case http.MethodPost:
+			if _, ok := POSTEndpoint[r.URL.Path]; !ok {
+				logger.Warn(fmt.Sprintf("No %s method for %s endpoint", r.Method, r.URL.Path))
+				http.Error(w, "Invalid POST endpoint", http.StatusNotFound)
+				return
+			}
+		case http.MethodGet:
+			if _, ok := GETEndpoint[r.URL.Path]; !ok {
+				logger.Warn(fmt.Sprintf("No %s method for %s endpoint", r.Method, r.URL.Path))
+				http.Error(w, "Invalid GET endpoint", http.StatusNotFound)
+				return
+			}
+		default:
+			logger.Error(fmt.Sprintf("%s method not allowed - %s", r.Method, r.URL.Path))
+			http.Error(w, fmt.Sprintf("Request method %s not allowed", r.Method), http.StatusNotFound)
+			return
+		}
 
 		start := time.Now()
 		next.ServeHTTP(w, r)

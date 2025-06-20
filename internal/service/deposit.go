@@ -26,18 +26,18 @@ func NewDepositService(store DepositStore) *DepositService {
 }
 
 func (s *DepositService) DoDeposit(ctx context.Context, tx *sql.Tx, username string, amount int64, isCounterparty bool) (*model.Wallet, error) {
-	funcName := "DepositService.DoDeposit"
-	logger.Info(fmt.Sprintf("%s - Params received", funcName), zap.String("username", username), zap.Int64("amount", amount))
+	fnName := "DepositService.DoDeposit"
+	logger.Info(fmt.Sprintf("%s - Params received", fnName), zap.String("username", username), zap.Int64("amount", amount))
 	username, err := validation.SanitizeAndValidateUsername(username)
 	if err != nil {
 		return nil, err
 	}
-	logger.Info(fmt.Sprintf("%s - Username sanitized", funcName), zap.String("username", username))
+	logger.Info(fmt.Sprintf("%s - Username sanitized", fnName), zap.String("username", username))
 
 	if err := validation.ValidateAmount(amount); err != nil {
 		return nil, err
 	}
-	logger.Info(fmt.Sprintf("%s - Amount not breaching upper or lower limit", funcName), zap.Int64("amount", amount))
+	logger.Info(fmt.Sprintf("%s - Amount not breaching upper or lower limit", fnName), zap.Int64("amount", amount))
 
 	currentWallet, err := s.store.FetchWallet(ctx, username)
 	if err != nil {
@@ -45,25 +45,25 @@ func (s *DepositService) DoDeposit(ctx context.Context, tx *sql.Tx, username str
 	}
 	if currentWallet == nil {
 		if isCounterparty {
-			return nil, fmt.Errorf("%s - counterparty %s wallet does not exist", funcName, username)
+			return nil, fmt.Errorf("%s - counterparty %s wallet does not exist", fnName, username)
 		}
-		logger.Warn(fmt.Sprintf("%s - No wallet found for user", funcName))
+		logger.Warn(fmt.Sprintf("%s - No wallet found for user", fnName))
 	}
 
 	if currentWallet != nil {
 		newBalance := currentWallet.Balance + amount
 		if err := validation.ValidateWalletBalance(newBalance); err != nil {
 			logger.Error(
-				fmt.Sprintf("%s - Wallet balance validation failed", funcName),
+				fmt.Sprintf("%s - Wallet balance validation failed", fnName),
 				zap.Int64("wallet_balance", currentWallet.Balance),
 				zap.Int64("amount", amount),
 				zap.Int64("resulting_balance", newBalance),
 				zap.Error(err),
 			)
-			return nil, fmt.Errorf("%s exceeds upper limit - wallet balance: %d  - deposit: %d - exceed: %d", funcName, currentWallet.Balance, amount, newBalance)
+			return nil, fmt.Errorf("%s exceeds upper limit - wallet balance: %d  - deposit: %d - exceed: %d", fnName, currentWallet.Balance, amount, newBalance)
 		}
 		logger.Info(
-			fmt.Sprintf("%s - Wallet balance validated", funcName),
+			fmt.Sprintf("%s - Wallet balance validated", fnName),
 			zap.Int64("wallet_balance", currentWallet.Balance),
 			zap.Int64("amount", amount),
 			zap.Int64("resulting_balance", newBalance),
@@ -74,6 +74,6 @@ func (s *DepositService) DoDeposit(ctx context.Context, tx *sql.Tx, username str
 	if err != nil {
 		return nil, err
 	}
-	logger.Info(fmt.Sprintf("%s - Upserted wallet", funcName), zap.Any("wallet", updatedWallet))
+	logger.Info(fmt.Sprintf("%s - Upserted wallet", fnName), zap.Any("wallet", updatedWallet))
 	return updatedWallet, nil
 }

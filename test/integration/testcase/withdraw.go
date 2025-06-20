@@ -9,7 +9,7 @@ func AddWithdrawTestCases() []TestCase {
 	return []TestCase{
 		{
 			Name:    "Integration Test: Successful Withdraw - Normal empty account",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -29,7 +29,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Successful Withdraw - Remainder balance with lowercase alphanumeric and underscore characters",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "_JUAN123_",
@@ -49,7 +49,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Successful Withdraw - Username with space padding",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "_J_U_L5_",
@@ -69,7 +69,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Withdraw - Overdraft wallet balance",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "JUAN",
@@ -89,7 +89,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:           "Integration Test: Fail Withdraw - No wallet found",
-			TxnType:        model.TransactionType(model.TypeWithdraw),
+			TxnType:        model.TypeWithdraw,
 			InitialWallets: nil,
 			Payload: &request.RequestPayload{
 				Username: "_test_J_",
@@ -100,7 +100,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Withdraw - Zero amount",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "J_123",
@@ -120,7 +120,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Withdraw - Negative payload amount",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "J_123",
@@ -140,7 +140,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Deposit - Invalid character username",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "J_123",
@@ -160,7 +160,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Deposit - Overdraft amount",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "J_123",
@@ -180,7 +180,7 @@ func AddWithdrawTestCases() []TestCase {
 		},
 		{
 			Name:    "Integration Test: Fail Deposit - Spaces in username",
-			TxnType: model.TransactionType(model.TypeWithdraw),
+			TxnType: model.TypeWithdraw,
 			InitialWallets: []model.Wallet{
 				{
 					Username:            "J_123",

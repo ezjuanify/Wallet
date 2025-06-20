@@ -46,13 +46,13 @@ func (h *WalletHandler) WithdrawHandler(w http.ResponseWriter, r *http.Request) 
 
 	wallet, err := h.withdrawService.DoWithdraw(ctx, tx, payload.Username, payload.Amount)
 	if err != nil {
-		logger.Error("Wallet withdraw failed", zap.String("error", err.Error()), zap.String("user", payload.Username))
+		logger.Error("Wallet withdraw failed", zap.Error(err), zap.String("user", payload.Username))
 		http.Error(w, fmt.Sprintf("Withdraw Error: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	if err = h.transactionService.LogTransaction(ctx, tx, payload.Username, model.TypeWithdraw, payload.Amount, nil); err != nil {
-		logger.Warn("Failed to log transaction", zap.String("error", err.Error()))
+		logger.Warn("Failed to log transaction", zap.Error(err))
 	}
 
 	resp := &response.TransactionResponse{
@@ -65,6 +65,6 @@ func (h *WalletHandler) WithdrawHandler(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		logger.Error("Failed to encode withdraw response", zap.String("error", err.Error()))
+		logger.Error("Failed to encode withdraw response", zap.Error(err))
 	}
 }

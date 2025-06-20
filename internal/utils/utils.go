@@ -11,6 +11,7 @@ import (
 
 	"github.com/ezjuanify/wallet/internal/db"
 	"github.com/ezjuanify/wallet/internal/logger"
+	"github.com/ezjuanify/wallet/internal/model"
 	"github.com/ezjuanify/wallet/internal/model/request"
 	"go.uber.org/zap"
 )
@@ -87,7 +88,7 @@ func DecodeRequest(r *http.Request) (*request.RequestPayload, error) {
 	return req, nil
 }
 
-func GenerateTransactionHash(txUser string, txType string, txAmount int64, txCounterparty *string, timestamp string) string {
+func GenerateTransactionHash(txUser string, txType model.TxnType, txAmount int64, txCounterparty *string, timestamp string) string {
 	var counterparty string
 	if txCounterparty != nil {
 		counterparty = *txCounterparty
