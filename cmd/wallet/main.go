@@ -60,6 +60,8 @@ func main() {
 	ap.Mux.HandleFunc(appserv.TRANSACTION, wh.TransactionHandler)
 	logger.Debug("Attaching BalanceHandler")
 	ap.Mux.HandleFunc(appserv.BALANCE, wh.BalanceHandler)
+	logger.Debug("Attaching AdminBalanceHandler")
+	ap.Mux.HandleFunc(appserv.ADMIN_BALANCES, wh.AdminBalanceHandler)
 	logger.Info("All API handlers attached")
 
 	if err := ap.GetEnvPort(); err != nil {

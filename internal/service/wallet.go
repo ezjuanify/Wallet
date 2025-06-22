@@ -53,6 +53,25 @@ func (s *WalletService) DoFetchWallet(ctx context.Context, username string) (*mo
 			},
 		}
 	}
-
+	logger.Info(fmt.Sprintf("%s - User wallet fetched successfully", fnName), zap.Any("wallet", wallet))
 	return wallet, nil
+}
+
+func (s *WalletService) DoFetchAllWallets(ctx context.Context) ([]model.Wallet, *validation.WalletError) {
+	fnName := "WalletService.DoFetchAllWallets"
+	logger.Info(fmt.Sprintf("%s - No params to receive", fnName))
+
+	wallets, err := s.store.FetchAllWallet(ctx)
+	if err != nil {
+		return nil, &validation.WalletError{
+			Name:      fnName,
+			Code:      validation.ERR_FETCH_WALLET_FAILED,
+			Message:   "Error while fetching wallets",
+			Timestamp: time.Now().UTC(),
+			Err:       err,
+			Context:   nil,
+		}
+	}
+	logger.Info(fmt.Sprintf("%s - All wallets fetched successfully", fnName), zap.Any("wallets", wallets))
+	return wallets, nil
 }

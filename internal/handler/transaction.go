@@ -48,5 +48,5 @@ func (h *WalletHandler) TransactionHandler(w http.ResponseWriter, r *http.Reques
 		Transactions: transactions,
 	}
 	logger.Info(fmt.Sprintf("%s - Sending transaction response", fnName), zap.Any("response", resp))
-	SendJSONResponse(fnName, w, int(resp.Status), resp)
+	SendJSONResponse(fnName, w, resp.Status, resp)
 }

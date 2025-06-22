@@ -199,6 +199,42 @@ func (s *Store) FetchWallet(ctx context.Context, username string) (*model.Wallet
 	return &wallet, nil
 }
 
+func (s *Store) FetchAllWallet(ctx context.Context) ([]model.Wallet, error) {
+	fnName := "DBStore.FetchAllWallet"
+	logger.Debug(fmt.Sprintf("%s - no params to receive", fnName))
+	query := `
+		SELECT username, balance, last_deposit_amount, last_deposit_updated, last_withdraw_amount, last_withdraw_updated
+		FROM wallets;
+	`
+	logger.Debug(fmt.Sprintf("%s - query", fnName), zap.String("query", query))
+
+	var wallets []model.Wallet
+
+	rows, err := s.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var wallet model.Wallet
+		err := rows.Scan(
+			&wallet.Username,
+			&wallet.Balance,
+			&wallet.LastDepositAmount,
+			&wallet.LastDepositUpdated,
+			&wallet.LastWithdrawAmount,
+			&wallet.LastWithdrawUpdated,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		wallets = append(wallets, wallet)
+	}
+	return wallets, nil
+}
+
 func (s *Store) UpsertWallet(ctx context.Context, tx *sql.Tx, username string, amount int64) (*model.Wallet, error) {
 	fnName := "DBStore.UpsertWallet"
 	logger.Debug(fmt.Sprintf("%s - parameters", fnName), zap.String("username", username), zap.Int64("amount", amount))
