@@ -40,10 +40,11 @@ func main() {
 	}
 	logger.Info("Successfully connected to DB", dbFields...)
 
+	s := service.NewWalletService(store)
 	ds := service.NewDepositService(store)
 	ws := service.NewWithdrawService(store)
 	ts := service.NewTransactionService(store)
-	wh := handler.NewWalletHandler(store, ds, ws, ts)
+	wh := handler.NewWalletHandler(store, s, ds, ws, ts)
 	logger.Info("All services initialized")
 
 	ap := appserv.NewAppServer()
@@ -57,6 +58,8 @@ func main() {
 	ap.Mux.HandleFunc(appserv.TRANSFER, wh.TransferHandler)
 	logger.Debug("Attaching TransactionHandler")
 	ap.Mux.HandleFunc(appserv.TRANSACTION, wh.TransactionHandler)
+	logger.Debug("Attaching BalanceHandler")
+	ap.Mux.HandleFunc(appserv.BALANCE, wh.BalanceHandler)
 	logger.Info("All API handlers attached")
 
 	if err := ap.GetEnvPort(); err != nil {

@@ -27,6 +27,7 @@ const (
 	TRANSFER    = "/transfer"
 	HEALTH      = "/health"
 	TRANSACTION = "/transactions"
+	BALANCE     = "/balance"
 )
 
 var POSTEndpoint = map[string]struct{}{
@@ -38,6 +39,7 @@ var POSTEndpoint = map[string]struct{}{
 var GETEndpoint = map[string]struct{}{
 	TRANSACTION: {},
 	HEALTH:      {},
+	BALANCE:     {},
 }
 
 func requestLogger(next http.Handler) http.Handler {

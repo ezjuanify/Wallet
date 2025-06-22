@@ -4,7 +4,7 @@ import "github.com/ezjuanify/wallet/internal/model"
 
 type TransactionResponse struct {
 	Status          int64         `json:"status"`
-	TransactionType model.TxnType `json:"action"`
+	TransactionType model.TxnType `json:"action,omitempty"`
 	Wallet          model.Wallet  `json:"wallet"`
 	Counterparty    *string       `json:"counterparty,omitempty"`
 }

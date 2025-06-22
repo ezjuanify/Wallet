@@ -1,17 +1,18 @@
 package handler
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/ezjuanify/wallet/internal/logger"
 	"github.com/ezjuanify/wallet/internal/model"
 	"github.com/ezjuanify/wallet/internal/model/response"
+	"go.uber.org/zap"
 )
 
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
+	fnName := "HealthHandler"
 	resp := &response.HealthResponse{Status: model.StatusHealthy}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	logger.Info(fmt.Sprintf("%s - Health request received", fnName), zap.Any("response", resp))
+	SendJSONResponse(fnName, w, http.StatusOK, resp)
 }

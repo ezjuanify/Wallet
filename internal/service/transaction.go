@@ -20,20 +20,38 @@ type TransactionService struct {
 }
 
 func NewTransactionService(store *db.Store) *TransactionService {
-	logger.Debug("Initializing TransactionService")
+	logger.Info("Initializing TransactionService")
 	return &TransactionService{store: store}
 }
 
-func (ts *TransactionService) LogTransaction(ctx context.Context, tx *sql.Tx, txnUsername string, txnType model.TxnType, txnAmount int64, txnCounterparty *string) error {
+func (ts *TransactionService) LogTransaction(ctx context.Context, tx *sql.Tx, txnUsername string, txnType model.TxnType, txnAmount int64, txnCounterparty *string) (*model.Transaction, *validation.WalletError) {
 	fnName := "TransactionService.LogTransaction"
 	if txnAmount <= 0 {
-		return fmt.Errorf("%s - skipping transaction logging for 0 amount", fnName)
+		return nil, &validation.WalletError{
+			Name:      fnName,
+			Code:      validation.ERR_ZERO_AMOUNT,
+			Message:   "Skip logging transaction due to zero amount",
+			Timestamp: time.Now().UTC(),
+			Err:       nil,
+			Context: []zap.Field{
+				zap.Int64("amount", txnAmount),
+			},
+		}
 	}
+	logger.Info(fmt.Sprintf("%s - Amount valid", fnName), zap.Int64("amount", txnAmount))
 
-	logger.Debug(fmt.Sprintf("%s - Sanitizing username", fnName), zap.String("username", txnUsername))
 	txUser, err := validation.SanitizeAndValidateUsername(txnUsername)
 	if err != nil {
-		return err
+		return nil, &validation.WalletError{
+			Name:      fnName,
+			Code:      validation.ERR_SANITIZE_USERNAME_FAILED,
+			Message:   "Failed to sanitize username",
+			Timestamp: time.Now().UTC(),
+			Err:       err,
+			Context: []zap.Field{
+				zap.String("username", txUser),
+			},
+		}
 	}
 	logger.Info(fmt.Sprintf("%s - Username sanitized", fnName), zap.String("username", txUser))
 
@@ -49,43 +67,63 @@ func (ts *TransactionService) LogTransaction(ctx context.Context, tx *sql.Tx, tx
 		Timestamp:    timestamp,
 		Hash:         hash,
 	}
-	logger.Info(fmt.Sprintf("%s - Inserting transaction", fnName), zap.Any("transaction", txn))
 	err = ts.store.InsertTransaction(ctx, tx, txn)
-	return err
+	if err != nil {
+		return nil, &validation.WalletError{
+			Name:      fnName,
+			Code:      validation.ERR_LOG_TRANSACTION_FAILED,
+			Message:   "Failed to log transaction",
+			Timestamp: time.Now().UTC(),
+			Context: []zap.Field{
+				zap.Any("transaction", txn),
+			},
+		}
+	}
+	logger.Info(fmt.Sprintf("%s - Transaction logged successfully", fnName), zap.Any("transaction", txn))
+	return &txn, nil
 }
 
-func (ts *TransactionService) DoFetchTransaction(ctx context.Context, txnUsername string, txnCounterparty string, txnType string, txnLimit string) ([]model.Transaction, *model.Criteria, error) {
+func (ts *TransactionService) DoFetchTransaction(ctx context.Context, txnUsername string, txnCounterparty string, txnType string, txnLimit string) ([]model.Transaction, *model.Criteria, *validation.WalletError) {
 	fnName := "TransactionService.DoFetchTransaction"
-	criteriaUsername := validation.SanitizeUsernameWithoutError(txnUsername)
-	logger.Debug(fmt.Sprintf("%s - username sanitized", fnName), zap.String("username", criteriaUsername))
+	queryUsername := validation.SanitizeUsernameWithoutError(txnUsername)
+	logger.Info(fmt.Sprintf("%s - Username sanitized", fnName), zap.String("username", queryUsername))
 
-	criteriaTxnType := ""
+	queryTxnType := ""
 	if model.IsTxnTypeValid(txnType) {
-		criteriaTxnType = txnType
+		queryTxnType = txnType
 	}
-	logger.Debug(fmt.Sprintf("%s - txnType valid", fnName), zap.String("txnType", criteriaTxnType))
+	logger.Info(fmt.Sprintf("%s - Transaction type valid", fnName), zap.String("txnType", queryTxnType))
 
-	criteriaCounterparty := validation.SanitizeUsernameWithoutError(txnCounterparty)
-	logger.Debug(fmt.Sprintf("%s - counterparty sanitized", fnName), zap.String("counterparty", criteriaCounterparty))
+	queryCounterparty := validation.SanitizeUsernameWithoutError(txnCounterparty)
+	logger.Info(fmt.Sprintf("%s - Counterparty sanitized", fnName), zap.String("counterparty", queryCounterparty))
 
-	criteriaLimit, err := strconv.Atoi(txnLimit)
+	queryLimit, err := strconv.Atoi(txnLimit)
 	if err != nil {
-		criteriaLimit = 0
+		queryLimit = 0
 	}
-	logger.Debug(fmt.Sprintf("%s - limit converted to int", fnName), zap.Int("limit", criteriaLimit))
+	logger.Info(fmt.Sprintf("%s - Limit converted to int", fnName), zap.Int("limit", queryLimit))
 
-	criteria := &model.Criteria{
-		Username:     criteriaUsername,
-		Counterparty: criteriaCounterparty,
-		TxnType:      model.TxnType(criteriaTxnType),
-		Limit:        criteriaLimit,
+	query := &model.Criteria{
+		Username:     queryUsername,
+		Counterparty: queryCounterparty,
+		TxnType:      model.TxnType(queryTxnType),
+		Limit:        queryLimit,
 	}
-	logger.Info(fmt.Sprintf("%s - criteria", fnName), zap.Any("criteria", criteria))
+	logger.Info(fmt.Sprintf("%s - query", fnName), zap.Any("query", query))
 
-	transactions, err := ts.store.FetchTransaction(ctx, criteria)
+	transactions, err := ts.store.FetchTransaction(ctx, query)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, &validation.WalletError{
+			Name:      fnName,
+			Code:      validation.ERR_FETCH_TRANSACTION_FAILED,
+			Message:   "Failed to fetch transaction",
+			Timestamp: time.Now().UTC(),
+			Err:       err,
+			Context: []zap.Field{
+				zap.Any("query", query),
+			},
+		}
 	}
-	logger.Info(fmt.Sprintf("%s - transactions result", fnName), zap.Any("transactions", transactions))
-	return transactions, criteria, nil
+	logger.Info(fmt.Sprintf("%s - Transaction fetched successfully", fnName), zap.Any("transactions", transactions))
+	return transactions, query, nil
 }
