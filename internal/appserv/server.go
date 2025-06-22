@@ -22,12 +22,13 @@ type AppServer struct {
 }
 
 const (
-	DEPOSIT     = "/deposit"
-	WITHDRAW    = "/withdraw"
-	TRANSFER    = "/transfer"
-	HEALTH      = "/health"
-	TRANSACTION = "/transactions"
-	BALANCE     = "/balance"
+	DEPOSIT        = "/deposit"
+	WITHDRAW       = "/withdraw"
+	TRANSFER       = "/transfer"
+	HEALTH         = "/health"
+	TRANSACTION    = "/transactions"
+	BALANCE        = "/balance"
+	ADMIN_BALANCES = "/admin/balances"
 )
 
 var POSTEndpoint = map[string]struct{}{
@@ -37,9 +38,10 @@ var POSTEndpoint = map[string]struct{}{
 }
 
 var GETEndpoint = map[string]struct{}{
-	TRANSACTION: {},
-	HEALTH:      {},
-	BALANCE:     {},
+	TRANSACTION:    {},
+	HEALTH:         {},
+	BALANCE:        {},
+	ADMIN_BALANCES: {},
 }
 
 func requestLogger(next http.Handler) http.Handler {

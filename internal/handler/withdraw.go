@@ -78,5 +78,5 @@ func (h *WalletHandler) WithdrawHandler(w http.ResponseWriter, r *http.Request) 
 		Wallet:          *wallet,
 	}
 	logger.Info(fmt.Sprintf("%s - Sending withdraw response", fnName), zap.Any("response", resp))
-	SendJSONResponse(fnName, w, int(resp.Status), resp)
+	SendJSONResponse(fnName, w, resp.Status, resp)
 }

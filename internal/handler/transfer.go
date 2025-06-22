@@ -127,5 +127,5 @@ func (h *WalletHandler) TransferHandler(w http.ResponseWriter, r *http.Request) 
 		Counterparty:    &counterparty,
 	}
 	logger.Info(fmt.Sprintf("%s - Sending transfer response", fnName), zap.Any("response", resp))
-	SendJSONResponse(fnName, w, int(resp.Status), resp)
+	SendJSONResponse(fnName, w, resp.Status, resp)
 }
