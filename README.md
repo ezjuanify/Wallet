@@ -212,6 +212,42 @@ localhost:8080/balance?username=juan
 }
 ```
 
+---
+
+### GET `/admin/balances`
+
+The purpose of this endpoint is to fetch all wallets from the database.
+
+#### URL Params
+```
+localhost:8080/admin/balances
+```
+
+#### Response
+```json
+{
+    "status": 200,
+    "wallets": [
+        {
+            "username": "JUAN",
+            "balance": 2000,
+            "lastDepositAmount": 2000,
+            "lastDepositUpdated": "2025-06-22T13:44:27.260471Z",
+            "lastWithdrawAmount": null,
+            "lastWithdrawUpdated": null
+        },
+        {
+            "username": "MARY",
+            "balance": 2000,
+            "lastDepositAmount": 2000,
+            "lastDepositUpdated": "2025-06-22T13:44:32.281925Z",
+            "lastWithdrawAmount": null,
+            "lastWithdrawUpdated": null
+        }
+    ]
+}
+```
+
 ## Testing
 
 ### Unit Tests
@@ -225,6 +261,12 @@ go test -v ./internal/...
 ```bash
 go test -v ./...
 ```
+
+## Improvements
+
+1. Separate transfer service into its own service (currently utilizing deposit and withdraw service)
+2. Improve integration test to also compare error codes.
+3. Health endpoint to return unhealthy if connection to DB is unsuccessful. 
 
 ## License
 
