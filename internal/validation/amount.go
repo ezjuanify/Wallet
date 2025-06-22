@@ -32,9 +32,9 @@ func ValidateAmount(amount int64) error {
 func ValidateWalletBalance(amount int64) error {
 	switch {
 	case isAmountTooLow(amount):
-		return fmt.Errorf("insufficient wallet balance")
+		return fmt.Errorf("insufficient funds in wallet %d", amount)
 	case isAmountTooHigh(amount):
-		return fmt.Errorf("wallet balance exceeds limit")
+		return fmt.Errorf("wallet balance %d exceeds %d", amount, UPPER_LIMIT)
 	default:
 		return nil
 	}
