@@ -124,7 +124,7 @@ Transfer funds from user wallet to counterparty wallet.
 
 ### GET `/transactions`
 
-Get transactions based on url parameters. These are the following params:
+Get transactions based on url parameters. Accepts the following params:
 
 - **username** - Search by username
 - **counterparty** - Search by counterparty
@@ -184,7 +184,33 @@ localhost:8080/transactions?username=juan
 }
 ```
 
+---
 
+### GET `/balance`
+
+Get user wallet. Accepts the following params:
+
+- **username** - Search by username
+
+#### URL Params
+```
+localhost:8080/balance?username=juan
+```
+
+#### Response
+```json
+{
+    "status": 200,
+    "wallet": {
+        "username": "JUAN",
+        "balance": 1300,
+        "lastDepositAmount": 2000,
+        "lastDepositUpdated": "2025-06-22T12:51:22.490346Z",
+        "lastWithdrawAmount": 200,
+        "lastWithdrawUpdated": "2025-06-22T12:52:22.519242Z"
+    }
+}
+```
 
 ## Testing
 
